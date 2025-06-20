@@ -1,7 +1,11 @@
 import logging
 
 class CustomFormatter(logging.Formatter):
+    '''Classe utilizzata per effettuare l'override del format base del logger
+    tramite colorazioni diverse in base al tipo di log e informazioni aggiuntive rispetto al format base
+    '''
     
+    #Sequenze ANSI per i colori
     cyan = "\x1b[36;20m"
     yellow = "\x1b[33;20m"
     red = "\x1b[31;20m"
@@ -14,10 +18,12 @@ class CustomFormatter(logging.Formatter):
     bold_magenta = "\x1b[35;1m"
     reset = "\x1b[0m"
 
+    #Informazioni dei log da rappresentare
     log_timestamp = "%(asctime)s"
     message_location_log = "%(message)s [%(filename)s:%(lineno)d]"
     dangerous_log_info = "%(exc_info)s"
 
+    #Dizionario dei livelli di log
     FORMATS = {
         logging.DEBUG: cyan + log_timestamp + bold_cyan + " | %(levelname)s | " + reset + cyan + message_location_log + reset,
         logging.INFO: blue + log_timestamp + bold_blue + " | %(levelname)s | " + reset + blue + message_location_log + reset,
@@ -27,6 +33,13 @@ class CustomFormatter(logging.Formatter):
     }
 
     def format(self, record):
+        '''
+        Override del metodo format per applicare il formato personalizzato
+        basato sul livello del record di log.
+
+        Se il record contiene un'eccezione, il messaggio viene esteso con
+        le informazioni dell'eccezione formattata.
+        '''
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         if record.exc_info:
