@@ -21,15 +21,14 @@ class CustomFormatter(logging.Formatter):
     #Informazioni dei log da rappresentare
     log_timestamp = "%(asctime)s"
     message_location_log = "%(message)s [%(filename)s:%(lineno)d]"
-    dangerous_log_info = "%(exc_info)s"
 
     #Dizionario dei livelli di log
     FORMATS = {
         logging.DEBUG: cyan + log_timestamp + bold_cyan + " | %(levelname)s | " + reset + cyan + message_location_log + reset,
         logging.INFO: blue + log_timestamp + bold_blue + " | %(levelname)s | " + reset + blue + message_location_log + reset,
         logging.WARNING: yellow + log_timestamp + bold_yellow + " | %(levelname)s | " + reset + yellow + message_location_log + reset,
-        logging.ERROR: red + log_timestamp + bold_red + " | %(levelname)s | " + reset + red + message_location_log + "\n" + dangerous_log_info + reset,
-        logging.CRITICAL: bold_magenta + log_timestamp + " | %(levelname)s | " + message_location_log + "\n" + magenta + dangerous_log_info + reset,
+        logging.ERROR: red + log_timestamp + bold_red + " | %(levelname)s | " + reset + red + message_location_log + "\n" + reset,
+        logging.CRITICAL: bold_magenta + log_timestamp + " | %(levelname)s | " + message_location_log + "\n" + magenta + reset,
     }
 
     def format(self, record):
@@ -37,11 +36,7 @@ class CustomFormatter(logging.Formatter):
         Override del metodo format per applicare il formato personalizzato
         basato sul livello del record di log.
 
-        Se il record contiene un'eccezione, il messaggio viene esteso con
-        le informazioni dell'eccezione formattata.
         '''
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
-        if record.exc_info:
-            record.message = f"{record.getMessage()}\n{self.formatException(record.exc_info)}"
         return formatter.format(record)

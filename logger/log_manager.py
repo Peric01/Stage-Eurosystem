@@ -14,24 +14,24 @@ class LogManager:
 
     def __init__(self):
         self.logger = logging.getLogger("LogSystem")
-        self.logger.serLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG)
         ch = logging.StreamHandler()
         ch.setFormatter(CustomFormatter())
         self.logger.addHandler(ch)
 
-        @classmethod
-        def get_instance(cls):
-            '''
-            Restituisce l'istanza singleton di LogManager
+    @classmethod
+    def get_instance(cls):
+        '''
+        Restituisce l'istanza singleton di LogManager
 
-            Se l'istanza non esiste, la crea chiamando il costruttore
-            '''
-            if cls._instance is None:
-                cls._instance = LogManager()
-            return cls._instance
-        
-        def get_logger(self):
-            '''
-            Restituisce il logger configurato per scrivere i messaggi di log
-            '''
-            return self.logger
+        Se l'istanza non esiste, la crea chiamando il costruttore
+        '''
+        if cls._instance is None:
+            cls._instance = LogManager()
+        return cls._instance
+    
+    def get_logger(self):
+        '''
+        Restituisce il logger configurato per scrivere i messaggi di log
+        '''
+        return self.logger
