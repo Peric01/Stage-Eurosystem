@@ -17,4 +17,5 @@ def test_logger():
         logger.error("TEST EXCEPTION", exc_info = True)
 
 if __name__ == "__main__":
-    test_logger()
+    #test_logger()
+    pass
