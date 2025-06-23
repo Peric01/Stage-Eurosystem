@@ -32,7 +32,7 @@ class CowrieParser(InterfaceLogParser):
                 "raw": raw_log
             }
         except json.JSONDecodeError:
-            logger.exception(f"Failed to parse log: {raw_log}")
+            logger.error(f"Failed to parse log: {raw_log}")
             return {
                 "error": "Failed to parse log",
                 "raw": raw_log
