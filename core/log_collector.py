@@ -62,5 +62,5 @@ class LogCollector:
             '{"timestamp": "2023-01-01T12:00:00", "eventid": "cowrie.login", "src_ip": "1.2.3.4", "message": "login attempt"}',
             '{"timestamp": "2023-01-01T12:01:00", "eventid": "cowrie.command", "src_ip": "5.6.7.8", "message": "executed command", "command": "whoami"}',
             '{"timestamp": "2023-01-01T12:02:00", "eventid": "cowrie.session", "src_ip": "9.10.11.12", "message": "session opened", "session": "abc123"}',
-            'INVALID_JSON_ENTRY'  # Will trigger JSONDecodeError
+            #'INVALID_JSON_ENTRY'  # Will trigger JSONDecodeError
         ]

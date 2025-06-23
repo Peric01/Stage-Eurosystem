@@ -1,6 +1,9 @@
 import threading
 
 class ThreadManager:
+    '''
+    Classe che gestisce i thread per l'esecuzione di operazioni concorrenti.
+    '''
     def __init__(self):
         self.threads = []
     
