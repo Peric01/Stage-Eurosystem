@@ -14,19 +14,31 @@ class ServiceManager:
         self.logger = LogManager.get_instance().get_logger()
         self.collector = None
 
-    def start_services(self):
+    def initialize_services(self):
         """
-        Avvia tutti i servizi necessari: parser, publisher e log collector.
+        Inizializza i servizi senza avviarli subito.
         """
-        self.logger.info("Avvio dei servizi...")
         try:
             parser = CowrieParser()
             publisher = MqttPublisher()
             self.collector = LogCollector(parser, publisher)
-            self.collector.start()
-            self.logger.info("Servizi avviati con successo.")
+            self.logger.info("Servizi inizializzati correttamente.")
+            return True
+        except Exception as e:
+            self.logger.error(f"Errore durante l'inizializzazione dei servizi: {e}")
+            return False
+
+    def start_services(self):
+        self.logger.info("Avvio dei servizi...")
+        try:
+            if self.collector:
+                self.collector.start()
+                self.logger.info("Servizi avviati con successo.")
+            else:
+                self.logger.error("Collector non inizializzato.")
         except Exception as e:
             self.logger.error(f"Errore durante l'avvio dei servizi: {e}")
+
 
     def stop_services(self):
         """
