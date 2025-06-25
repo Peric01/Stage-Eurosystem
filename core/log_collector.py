@@ -10,10 +10,10 @@ class LogCollector:
     Collects, parses, and dispatches logs from various sources.
     """
 
-    def __init__(self, logger, parser: InterfaceLogParser, dispatcher: InterfaceDataPublisher):
+    def __init__(self, logger, parser: InterfaceLogParser, publisher: InterfaceDataPublisher):
         self.logger = logger
         self.parser = parser
-        self.dispatcher = dispatcher
+        self.publisher = publisher
         self._run_event = threading.Event()
 
     def start(self):
