@@ -32,7 +32,7 @@ class ServiceManager:
 
             for attempt in range(max_retries):
                 try:
-                    publisher = MqttPublisher("46.62.130.53", "honeypot/logs") # Replace with actual broker address
+                    publisher = MqttPublisher("46.62.130.53", "honeypot/logs")
                     break
                 except Exception as e:
                     self.logger.warning(f"MQTT connection failed (attempt {attempt + 1}): {e}")
