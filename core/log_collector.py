@@ -45,7 +45,7 @@ class LogCollector:
             try:
                 parsed = self.parser.parse(raw_log)
                 if parsed is not None:
-                    self.dispatcher.publish(parsed)
+                    self.publisher.publish(parsed)
                     self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
                 else:
                     self.logger.warning("Parsed log is None - skipped")
@@ -53,14 +53,17 @@ class LogCollector:
                 self.logger.error(f"Error during log processing: {e}", exc_info=True)
 
     def _read_from_source(self) -> List[str]:
-        """
-        Reads raw logs from the actual log source.
-        This mock version returns static logs.
-        Replace this with real input (e.g., tailing a file, socket listener).
-        """
-        return [
-            #'{"timestamp": "2023-01-01T12:00:00", "eventid": "cowrie.login", "src_ip": "1.2.3.4", "message": "login attempt"}',
-            #'{"timestamp": "2023-01-01T12:01:00", "eventid": "cowrie.command", "src_ip": "5.6.7.8", "message": "executed command", "command": "whoami"}',
-            #'{"timestamp": "2023-01-01T12:02:00", "eventid": "cowrie.session", "src_ip": "9.10.11.12", "message": "session opened", "session": "abc123"}',
-            #'INVALID_JSON_ENTRY'  # Will trigger JSONDecodeError
-        ]
+        logs = []
+        log_path = "/path/to/cowrie/var/log/cowrie/cowrie.json"  # Modifica con percorso corretto
+
+        try:
+            with open(log_path, 'r') as f:
+                lines = f.readlines()
+                # Leggi solo le nuove righe non ancora processate
+                # oppure leggi tutto e poi processa
+                logs.extend([line.strip() for line in lines if line.strip()])
+        except Exception as e:
+            self.logger.error(f"Failed to read Cowrie log file: {e}")
+
+        return logs
+
