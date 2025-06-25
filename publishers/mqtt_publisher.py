@@ -23,6 +23,10 @@ class MqttPublisher(InterfaceDataPublisher):
         self.client = mqtt.Client()
         self.logger = LogManager.get_instance().get_logger()
 
+        # DEBUG DELLA CONNESIONE MQTT
+        self.client.on_connect = self.on_connect
+        self.client.on_disconnect = self.on_disconnect
+
         try:
             self.client.connect(self.broker_address, self.port)
             self.client.loop_start()
@@ -40,3 +44,18 @@ class MqttPublisher(InterfaceDataPublisher):
             self.logger.debug(f"MQTT published log to '{self.topic}': {payload}")
         except Exception as e:
             self.logger.exception(f"Failed to publish log to MQTT: {e}")
+
+    def on_connect(self, client, userdata, flags, rc):
+        '''
+        Callback per la connessione al broker MQTT.
+        '''
+        if rc == 0:
+            self.logger.info("MQTT connection successful")
+        else:
+            self.logger.error(f"MQTT connection failed with code {rc}")
+
+    def on_disconnect(self, client, userdata, rc):
+        '''
+        Callback per la disconnessione dal broker MQTT.
+        '''
+        self.logger.warning(f"MQTT disconnected with code {rc}")
