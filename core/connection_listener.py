@@ -7,10 +7,8 @@ def handle_connection(client_socket, address, port, logger):
     """
     Gestisce una singola connessione.
     """
-    logger.info(f"🔌 Connessione ricevuta da {address} sulla porta {port}")
+    logger.info(f"Connessione ricevuta da {address} sulla porta {port}")
     try:
-        # Messaggio dummy per il client
-        client_socket.sendall(b"Welcome to honeypot service.\n")
         time.sleep(1)
     except Exception as e:
         logger.error(f"Errore durante la comunicazione con {address} sulla porta {port}: {e}")
@@ -26,7 +24,7 @@ def listen_on_port(port, run_event: threading.Event, logger):
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind(("0.0.0.0", port))
         server_socket.listen(5)
-        logger.info(f"🟢 Listener attivo sulla porta {port}")
+        logger.info(f"Listener active on port {port}")
 
         server_socket.settimeout(1.0)  # Per poter controllare run_event periodicamente
 
@@ -43,7 +41,7 @@ def listen_on_port(port, run_event: threading.Event, logger):
             except Exception as e:
                 logger.error(f"Errore nella socket su porta {port}: {e}")
 
-        logger.info(f"🔴 Listener sulla porta {port} terminato")
+        logger.info(f"Listener on port {port} stopped")
 
 def start_connection_listener(run_event: threading.Event):
     """
