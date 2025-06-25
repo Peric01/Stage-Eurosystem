@@ -25,6 +25,7 @@ class MqttPublisher(InterfaceDataPublisher):
 
         try:
             self.client.connect(self.broker_address, self.port)
+            self.client.loop_start()
             self.logger.info(f"MQTT connected to {self.broker_address}:{self.port} on topic '{self.topic}'")
         except Exception as e:
             self.logger.error(f"Failed to connect to MQTT broker: {e}")
