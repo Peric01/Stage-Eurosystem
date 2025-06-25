@@ -54,7 +54,7 @@ class LogCollector:
 
     def _read_from_source(self) -> List[str]:
         logs = []
-        log_path = "/cowrie/var/log/cowrie/cowrie.json"  # Modifica con percorso corretto
+        log_path = "/home/marko/cowrie/var/log/cowrie/cowrie.json"  # Modifica con percorso corretto
 
         try:
             with open(log_path, 'r') as f:
