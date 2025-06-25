@@ -22,7 +22,7 @@ def listen_on_port(port, run_event: threading.Event, logger):
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_socket.bind(("0.0.0.0", port))
+        server_socket.bind(("65.108.92.96", port))
         server_socket.listen(5)
         logger.info(f"Listener active on port {port}")
 
