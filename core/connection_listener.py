@@ -48,9 +48,8 @@ def start_connection_listener(run_event: threading.Event):
     Avvia listener su più porte in thread separati.
     """
     logger = LogManager.get_instance().get_logger()
-    logger.info("Avvio del Connection Listener su porta 2223")
 
-    ports = [2223]
+    ports = []
     threads = []
 
     for port in ports:
