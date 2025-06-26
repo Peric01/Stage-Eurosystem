@@ -68,6 +68,7 @@ class ServiceManager:
             log_collector = self.services.get('log_collector')
             if log_collector:
                 self.thread_manager.run_thread(log_collector.start)
+                self.logger.info("LogCollector started")
             else:
                 self.logger.warning("LogCollector not initialized")
 
