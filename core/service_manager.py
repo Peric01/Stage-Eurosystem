@@ -5,6 +5,7 @@ from core.thread_manager import ThreadManager
 import time
 import threading
 from core.log_collector import LogCollector
+from core.docker_log_collector import DockerLogCollector
 from parsers.parser_factory import get_parser
 from publishers.mqtt_publisher import MqttPublisher
 
@@ -20,12 +21,7 @@ class ServiceManager:
         self.services = {}
 
     def initialize_services(self):
-        """
-        Inizializza i servizi senza avviarli subito.
-        """
         try:
-            parser = get_parser("cowrie")
-
             max_retries = 3
             retry_delay = 5
             publisher = None
@@ -42,12 +38,31 @@ class ServiceManager:
                 self.logger.error("Could not connect to MQTT broker. Exiting.")
                 return False
 
-            log_collector = LogCollector(self.logger, parser, publisher)
+            # Mappa: sorgente -> (parser_name, log_path)
+            sources = {
+                'cowrie':   ("cowrie",   "/opt/cowrie/var/log/cowrie/cowrie.json", False),
+                'apache':   ("apache",   "apache", True),
+                'ldap':     ("ldap",     "ldap", True),
+                'dionaea':  ("dionaea",  "/opt/dionaea/var/dionaea.log.json", False)
+            }
+
+            log_collectors = []
+
+            for name, (parser_name, path_or_container, is_docker) in sources.items():
+                try:
+                    parser = get_parser(parser_name)
+                    if is_docker:
+                        collector = DockerLogCollector(self.logger, path_or_container, parser, publisher)
+                    else:
+                        collector = LogCollector(self.logger, parser, publisher, path_or_container)
+                    log_collectors.append((name, collector))
+                    self.logger.info(f"Initialized log collector for {name}")
+                except Exception as e:
+                    self.logger.error(f"Failed to initialize collector for {name}: {e}")
 
             self.services = {
-                'parser': parser,
                 'publisher': publisher,
-                'log_collector': log_collector
+                'log_collectors': log_collectors
             }
             return True
 
@@ -56,21 +71,16 @@ class ServiceManager:
             return False
 
     def start_services(self):
-        """
-        Avvia i servizi inizializzati.
-        """
         try:
             self.run_event.set()
 
             self.thread_manager.run_thread(start_connection_listener, args=(self.run_event,))
             self.thread_manager.run_thread(start_container_handler, args=(self.run_event,))
 
-            log_collector = self.services.get('log_collector')
-            if log_collector:
-                self.thread_manager.run_thread(log_collector.start)
-                self.logger.info("LogCollector started")
-            else:
-                self.logger.warning("LogCollector not initialized")
+            log_collectors = self.services.get('log_collectors', [])
+            for name, collector in log_collectors:
+                self.thread_manager.run_thread(collector.start)
+                self.logger.info(f"{name.capitalize()} LogCollector started")
 
             self.logger.info("All services started.")
             return True
@@ -80,14 +90,11 @@ class ServiceManager:
             return False
 
     def stop_services(self):
-        """
-        Interrompe i servizi attivi in modo sicuro.
-        """
         self.logger.info("Shutting down services...")
         self.run_event.clear()
 
-        if self.services.get('log_collector'):
-            self.services['log_collector'].stop()
+        for name, collector in self.services.get('log_collectors', []):
+            collector.stop()
 
         self.thread_manager.wait_all()
         self.logger.info("All services stopped.")

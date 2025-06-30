@@ -10,10 +10,11 @@ class LogCollector:
     Collects, parses, and dispatches logs from various sources.
     """
 
-    def __init__(self, logger, parser: InterfaceLogParser, publisher: InterfaceDataPublisher):
+    def __init__(self, logger, parser: InterfaceLogParser, publisher: InterfaceDataPublisher, log_path: str):
         self.logger = logger
         self.parser = parser
         self.publisher = publisher
+        self.log_path = log_path
         self._run_event = threading.Event()
 
     def start(self):
@@ -54,16 +55,12 @@ class LogCollector:
 
     def _read_from_source(self) -> List[str]:
         logs = []
-        log_path = "/home/cowrie/home/cowrie/var/log/cowrie/cowrie.json"  # Modifica con percorso corretto
-
         try:
-            with open(log_path, 'r') as f:
+            with open(self.log_path, 'r') as f:
                 lines = f.readlines()
-                # Leggi solo le nuove righe non ancora processate
-                # oppure leggi tutto e poi processa
                 logs.extend([line.strip() for line in lines if line.strip()])
         except Exception as e:
-            self.logger.error(f"Failed to read Cowrie log file: {e}")
+            self.logger.error(f"Failed to read log file at {self.log_path}: {e}")
 
         return logs
 
