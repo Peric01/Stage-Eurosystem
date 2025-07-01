@@ -40,10 +40,10 @@ class ServiceManager:
 
             # Mappa: sorgente -> (parser_name, log_path)
             sources = {
-                'cowrie':   ("cowrie",   "/opt/cowrie/var/log/cowrie/cowrie.json", False),
+                'cowrie':   ("cowrie",   "cowrie", True),
                 'apache':   ("apache",   "apache", True),
                 'ldap':     ("ldap",     "ldap", True),
-                'dionaea':  ("dionaea",  "/opt/dionaea/var/dionaea.log.json", False)
+                'dionaea':  ("dionaea",  "dionaea", True)
             }
 
             log_collectors = []
