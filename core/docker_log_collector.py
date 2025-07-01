@@ -29,7 +29,7 @@ class DockerLogCollector:
     def _collect_loop(self):
         try:
             container = self.client.containers.get(self.container_name)
-            for log_line in container.logs(stream=True, follow=True, since=0):
+            for log_line in container.logs(stream=True, follow=True):
                 if not self._run_event.is_set():
                     break
                 line = log_line.decode("utf-8").strip()

@@ -42,7 +42,7 @@ class ServiceManager:
             sources = {
                 'cowrie':   ("cowrie",   "cowrie", True),
                 'apache':   ("apache",   "apache", True),
-                'ldap':     ("ldap",     "ldap", True),
+                'openldap':     ("openldap",     "openldap", True),
                 'dionaea':  ("dionaea",  "dionaea", True)
             }
 
