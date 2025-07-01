@@ -41,9 +41,9 @@ class ServiceManager:
             # Mappa: sorgente -> (parser_name, log_path)
             sources = {
                 'cowrie':   ("cowrie",   "cowrie", True),
-                'apache':   ("apache",   "apache", True),
-                'openldap': ("openldap", "openldap", True),
-                'dionaea':  ("dionaea",  "dionaea", True)
+                #'apache':   ("apache",   "apache", True),
+                #'openldap': ("openldap", "openldap", True),
+                #'dionaea':  ("dionaea",  "dionaea", True)
             }
 
             log_collectors = []
