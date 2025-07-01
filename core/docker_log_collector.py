@@ -36,6 +36,7 @@ class DockerLogCollector:
                 self.logger.debug(f"[{self.container_name}] Raw log: {line}")
                 try:
                     parsed = self.parser.parse(line)
+                    self.logger.debug(f"[{self.container_name}] Parsed log: {parsed}")
                     # if parsed:
                     #     self.publisher.publish(parsed)
                     #     self.logger.info(f"[{self.container_name}] Published event: {parsed.get('event', 'unknown')}")
