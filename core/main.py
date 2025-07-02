@@ -6,9 +6,12 @@ from core.log_collector import LogCollector
 import threading
 import time
 from core.service_manager import ServiceManager
+from config.environment_config import ask_log_level
 
 
 def main():
+    level = ask_log_level()
+    LogManager.get_instance().get_logger().set_level(level)
     service_manager = ServiceManager()
 
     if not service_manager.initialize_services():
