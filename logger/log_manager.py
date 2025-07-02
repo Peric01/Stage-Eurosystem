@@ -62,4 +62,21 @@ class LogManager:
             print("Scelta non valida. Verrà utilizzato il livello di log predefinito: DEBUG\n")
             level_name, level = "DEBUG", 10
         
-        return level
+        return level_name
+    
+    def set_level(self, level_name):
+        '''
+        Imposta il livello di log del logger
+
+        :param level_name: Nome del livello di log da impostare (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        '''
+        level_map = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING,
+            "ERROR": logging.ERROR,
+            "CRITICAL": logging.CRITICAL
+        }
+        
+        if level_name in level_map:
+            self.logger.setLevel(level_map[level_name])
