@@ -35,3 +35,6 @@ class LogManager:
         Restituisce il logger configurato per scrivere i messaggi di log
         '''
         return self.logger
+    
+    def set_level(self, level):
+        self.logger.setLevel(level)
