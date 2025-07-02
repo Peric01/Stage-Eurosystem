@@ -31,6 +31,12 @@ class CowrieParser(InterfaceLogParser):
             username_match = re.search(r"b'([^']+)'\s+trying auth", raw_log)
             password_match = re.search(r"auth\s+b'([^']+)'", raw_log)
             message_match = re.search(r"\[[^\]]+\]\s+(?!.*b'[^']+')(.+)", raw_log)
+            logger.debug(f"extracted information: timestamp={timestamp_match.group(1) if timestamp_match else None}, ")
+            logger.debug(f"class_name={class_name_match.group(1) if class_name_match else None}, ")
+            logger.debug(f"ip={ip_match.group(1) if ip_match else None}, ")
+            logger.debug(f"username={username_match.group(1) if username_match else None}, ")
+            logger.debug(f"password={password_match.group(1) if password_match else None}, ")
+            logger.debug(f"message={message_match.group(1) if message_match else None}")
         except json.JSONDecodeError:
             logger.error(f"Failed to parse log: {raw_log}")
             return {
