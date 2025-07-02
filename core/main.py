@@ -11,7 +11,7 @@ from config.environment_config import ask_log_level
 
 def main():
     level = ask_log_level()
-    LogManager.get_instance().get_logger().set_level(level)
+    LogManager.get_instance().get_logger().setLevel(level)
     service_manager = ServiceManager()
 
     if not service_manager.initialize_services():
