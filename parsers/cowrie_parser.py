@@ -27,33 +27,9 @@ class CowrieParser(InterfaceLogParser):
                     "raw": raw_log
                 }
             class_name_match = re.search(r'\[(.*?)\]', raw_log)
-            if not class_name_match:
-                logger.error(f"Class name not found in log: {raw_log}")
-                return {
-                    "error": "Class name not found",
-                    "raw": raw_log
-                }
             ip_match = re.search(r'\[.*?,\d+,(\d{1,3}(?:\.\d{1,3}){3})\]', raw_log)
-            if not ip_match:
-                logger.error(f"IP address not found in log: {raw_log}")
-                return {
-                    "error": "IP address not found",
-                    "raw": raw_log
-                }
             username_match = re.search(r"b'([^']+)'\s+trying auth", raw_log)
-            if not username_match:
-                logger.error(f"Username not found in log: {raw_log}")
-                return {
-                    "error": "Username not found",
-                    "raw": raw_log
-                }
             password_match = re.search(r"auth\s+b'([^']+)'", raw_log)
-            if not password_match:
-                logger.error(f"Password not found in log: {raw_log}")
-                return {
-                    "error": "Password not found",
-                    "raw": raw_log
-                }
             message_match = re.search(r"\[[^\]]+\]\s+(?!.*b'[^']+')(.+)", raw_log)
         except json.JSONDecodeError:
             logger.error(f"Failed to parse log: {raw_log}")
