@@ -27,16 +27,21 @@ class CowrieParser(InterfaceLogParser):
         class_match = re.search(r'\[([^\]]+)\]', raw_log)
         if class_match:
             full_class = class_match.group(1)
-            parsed_log["class_name"] = full_class.split(',')[0]  # es. HoneyPotSSHTransport
-            parsed_log["class_name"] = full_class.split('#')[0]
-            # Estrai IP se presente dopo una virgola
+
+            # Rimuove tutto dopo la prima virgola o cancelletto
+            class_name_clean = re.split(r'[,#]', full_class)[0]
+            parsed_log["class_name"] = class_name_clean
+
+            # Estrai IP se presente (dopo virgola)
             ip_match = re.search(r',(\d{1,3}(?:\.\d{1,3}){3})', full_class)
             if ip_match:
                 parsed_log["ip"] = ip_match.group(1)
 
+            # Estrai "system" se presente dopo #
             system_match = re.search(r'#\s*([^]]+)\]', raw_log)
             if system_match:
                 parsed_log["system"] = system_match.group(1).strip()
+
 
         login_match = re.search(r"b'([^']+)'\s+(?:authenticated with|trying auth|failed auth)\s+b'([^']+)'", raw_log)
         if login_match:
