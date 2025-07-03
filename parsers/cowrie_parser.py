@@ -33,7 +33,7 @@ class CowrieParser(InterfaceLogParser):
             if ip_match:
                 parsed_log["ip"] = ip_match.group(1)
 
-        login_match = re.search(r"b'([^']+)'\s+(?:authenticated with|trying auth)\s+b'([^']+)'", raw_log)
+        login_match = re.search(r"b'([^']+)'\s+(?:authenticated with|trying auth|failed auth)\s+b'([^']+)'", raw_log)
         if login_match:
             parsed_log["username"] = login_match.group(1)
             parsed_log["password"] = login_match.group(2)
