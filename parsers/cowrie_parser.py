@@ -28,6 +28,7 @@ class CowrieParser(InterfaceLogParser):
         if class_match:
             full_class = class_match.group(1)
             parsed_log["class_name"] = full_class.split(',')[0]  # es. HoneyPotSSHTransport
+            parsed_log["class_name"] = full_class.split('#')[0]
             # Estrai IP se presente dopo una virgola
             ip_match = re.search(r',(\d{1,3}(?:\.\d{1,3}){3})', full_class)
             if ip_match:
