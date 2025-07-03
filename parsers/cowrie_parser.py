@@ -33,27 +33,33 @@ class CowrieParser(InterfaceLogParser):
             if ip_match:
                 parsed_log["ip"] = ip_match.group(1)
 
-        # Estrai username e password da pattern tipo:
-        # - b'user' trying auth b'pass'
-        # - login attempt [b'user'/b'pass'] failed
-        login1 = re.search(r"b'([^']+)'\s+trying auth\s+b'([^']+)'", raw_log)
-        login2 = re.search(r"login attempt\s+\[b'([^']*)'/b'([^']*)'\]", raw_log)
+            # Pulizia opzionale del campo "system", se esiste
+            system_match = re.search(r'#\s*([^]]+)\]', raw_log)
+            if system_match:
+                parsed_log["system"] = system_match.group(1).strip()
 
-        if login1:
-            parsed_log["username"] = login1.group(1)
-            parsed_log["password"] = login1.group(2)
-        elif login2:
-            parsed_log["username"] = login2.group(1)
-            parsed_log["password"] = login2.group(2)
+        login_match = re.search(r"b'([^']+)'\s+(?:authenticated with|trying auth)\s+b'([^']+)'", raw_log)
+        if login_match:
+            parsed_log["username"] = login_match.group(1)
+            parsed_log["password"] = login_match.group(2)
+        else:
+            # fallback: login attempt [b'user'/b'pass']
+            login_alt = re.search(r"login attempt\s+\[b'([^']+)'/b'([^']+)'\]", raw_log)
+            if login_alt:
+                parsed_log["username"] = login_alt.group(1)
+                parsed_log["password"] = login_alt.group(2)
+
+        # 4. COMANDI (CMD o Command found)
+        cmd_match = re.search(r'(?:CMD|Command found):\s*(.+)', raw_log)
+        if cmd_match:
+            parsed_log["command"] = cmd_match.group(1).strip()
 
         # Estrai il messaggio dopo l'ultima parentesi quadra
         msg_match = re.search(r'\]\s+(.*)$', raw_log)
         if msg_match:
             parsed_log["message"] = msg_match.group(1).strip()
 
-        # Pulizia opzionale del campo "system", se esiste
-        if "system" in parsed_log:
-            parsed_log["system"] = parsed_log["system"].split('#')[0]
+        
 
-        logger.debug(f"[CowrieParser] Parsed log: {parsed_log}")
+        logger.debug(f"Parsed log: {parsed_log}")
         return parsed_log
