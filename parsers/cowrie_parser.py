@@ -64,5 +64,4 @@ class CowrieParser(InterfaceLogParser):
         if msg_match:
             parsed_log["message"] = msg_match.group(1).strip()
 
-        logger.debug(f"[CowrieParser] Parsed log: {parsed_log}")
         return parsed_log

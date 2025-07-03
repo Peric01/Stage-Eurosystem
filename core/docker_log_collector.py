@@ -3,6 +3,7 @@ import docker
 from parsers.base_parser import InterfaceLogParser
 from publishers.base_publisher import InterfaceDataPublisher
 from logger.log_manager import LogManager
+from datetime import datetime
 
 class DockerLogCollector:
     """
@@ -29,7 +30,8 @@ class DockerLogCollector:
     def _collect_loop(self):
         try:
             container = self.client.containers.get(self.container_name)
-            for log_line in container.logs(stream=True, follow=True):
+            start_time = int(datetime.now().timestamp())
+            for log_line in container.logs(stream=True, follow=True, since=start_time):
                 if not self._run_event.is_set():
                     break
                 line = log_line.decode("utf-8").strip()
