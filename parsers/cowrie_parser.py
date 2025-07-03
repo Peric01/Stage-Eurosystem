@@ -33,16 +33,21 @@ class CowrieParser(InterfaceLogParser):
             if ip_match:
                 parsed_log["ip"] = ip_match.group(1)
 
-        # Estrai username/password da varie forme:
-        login_match_1 = re.search(r"[b']?([a-zA-Z0-9_\-@.]+)[']?\s+trying auth\s+[b']?([a-zA-Z0-9_\-@.]+)[']?", raw_log)
-        login_match_2 = re.search(r"login attempt\s+\[b'([^']*)'/b'([^']*)'\]", raw_log)
+        login_match = re.search(r"b'([^']+)'\s+(?:authenticated with|trying auth)\s+b'([^']+)'", raw_log)
+        if login_match:
+            parsed_log["username"] = login_match.group(1)
+            parsed_log["password"] = login_match.group(2)
+        else:
+            # fallback: login attempt [b'user'/b'pass']
+            login_alt = re.search(r"login attempt\s+\[b'([^']+)'/b'([^']+)'\]", raw_log)
+            if login_alt:
+                parsed_log["username"] = login_alt.group(1)
+                parsed_log["password"] = login_alt.group(2)
 
-        if login_match_1:
-            parsed_log["username"] = login_match_1.group(1)
-            parsed_log["password"] = login_match_1.group(2)
-        elif login_match_2:
-            parsed_log["username"] = login_match_2.group(1)
-            parsed_log["password"] = login_match_2.group(2)
+        # 4. COMANDI (CMD o Command found)
+        cmd_match = re.search(r'(?:CMD|Command found):\s*(.+)', raw_log)
+        if cmd_match:
+            parsed_log["command"] = cmd_match.group(1).strip()
 
         # Estrai il messaggio dopo l'ultima parentesi quadra
         msg_match = re.search(r'\]\s+(.*)$', raw_log)
