@@ -33,6 +33,10 @@ class CowrieParser(InterfaceLogParser):
             if ip_match:
                 parsed_log["ip"] = ip_match.group(1)
 
+            system_match = re.search(r'#\s*([^]]+)\]', raw_log)
+            if system_match:
+                parsed_log["system"] = system_match.group(1).strip()
+
         login_match = re.search(r"b'([^']+)'\s+(?:authenticated with|trying auth|failed auth)\s+b'([^']+)'", raw_log)
         if login_match:
             parsed_log["username"] = login_match.group(1)
@@ -53,10 +57,6 @@ class CowrieParser(InterfaceLogParser):
         msg_match = re.search(r'\]\s+(.*)$', raw_log)
         if msg_match:
             parsed_log["message"] = msg_match.group(1).strip()
-
-        # Se esiste campo 'system' (es. in JSON), puliscilo dal cancelletto
-        if 'system' in parsed_log:
-            parsed_log['system'] = parsed_log['system'].split('#')[0]
 
         logger.debug(f"[CowrieParser] Parsed log: {parsed_log}")
         return parsed_log
