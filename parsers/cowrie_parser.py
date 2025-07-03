@@ -13,67 +13,69 @@ class CowrieParser(InterfaceLogParser):
 
     def parse(self, raw_log: str) -> dict[str, Any]:
         parsed_log: dict[str, Any] = {
-            "raw": raw_log
+            "raw": raw_log,
+            "event": "generic",  # valore di default
         }
 
         try:
-            # Estrai il timestamp
+            # Timestamp (ISO 8601 con timezone)
             timestamp_match = re.search(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4})', raw_log)
             if timestamp_match:
                 parsed_log["timestamp"] = timestamp_match.group(1)
             else:
-                logger.debug(f"[CowrieParser] Timestamp non trovato in log: {raw_log}")
+                logger.warning(f"[CowrieParser] Timestamp non trovato in log: {raw_log}")
 
-            # Estrai classe e IP tra parentesi quadre
+            # Classe log e IP sorgente
             class_match = re.search(r'\[([^\]]+)\]', raw_log)
             if class_match:
                 full_class = class_match.group(1)
 
-                # Rimuove tutto dopo la prima virgola o cancelletto
+                # Classe (prima della virgola o #)
                 class_name_clean = re.split(r'[,#]', full_class)[0]
                 parsed_log["class_name"] = class_name_clean
 
-                # Estrai IP se presente (dopo virgola)
+                # src_ip (dopo virgola)
                 ip_match = re.search(r',(\d{1,3}(?:\.\d{1,3}){3})', full_class)
                 if ip_match:
-                    parsed_log["ip"] = ip_match.group(1)
+                    parsed_log["src_ip"] = ip_match.group(1)
 
-                # Estrai "system" se presente dopo #
+                # protocol/system (dopo cancelletto, se presente)
                 system_match = re.search(r'#\s*([^]]+)\]', raw_log)
                 if system_match:
-                    parsed_log["system"] = system_match.group(1).strip()
+                    parsed_log["protocol"] = system_match.group(1).strip()
 
-            # Tentativo di login classico
+            # Login
             login_match = re.search(r"b'([^']+)'\s+(?:authenticated with|trying auth|failed auth)\s+b'([^']+)'", raw_log)
             if login_match:
                 parsed_log["username"] = login_match.group(1)
                 parsed_log["password"] = login_match.group(2)
+                parsed_log["event"] = "login_attempt"
             else:
-                # fallback: login attempt [b'user'/b'pass']
                 login_alt = re.search(r"login attempt\s+\[b'([^']+)'/b'([^']+)'\]", raw_log)
                 if login_alt:
                     parsed_log["username"] = login_alt.group(1)
                     parsed_log["password"] = login_alt.group(2)
+                    parsed_log["event"] = "login_attempt"
 
-            # Comandi trovati
+            # Comandi
             cmd_match = re.search(r'(?:CMD|Command found):\s*(.+)', raw_log)
             if cmd_match:
                 parsed_log["command"] = cmd_match.group(1).strip()
+                parsed_log["event"] = "command_input"
 
-            cmd_tried_match = re.search(r'Command not found:\s*(.+)', raw_log)
-            if cmd_tried_match:
-                parsed_log["command_tried"] = cmd_tried_match.group(1).strip()
+            # Sessione (es: session x opened)
+            session_match = re.search(r'session (\d+)', raw_log)
+            if session_match:
+                parsed_log["session"] = session_match.group(1)
 
-            # Estrai il messaggio dopo l'ultima parentesi quadra
+            # Messaggio generale
             msg_match = re.search(r'\]\s+(.*)$', raw_log)
             if msg_match:
                 parsed_log["message"] = msg_match.group(1).strip()
 
-            # Facoltativo: se non abbiamo estratto nulla tranne "raw", puoi loggare un warning
-            if len(parsed_log) == 1:
-                logger.warning(f"[CowrieParser] Nessun campo estratto da log: {raw_log}")
+            return parsed_log
 
         except Exception as e:
-            logger.error(f"[CowrieParser] Errore nel parsing del log: {e}", exc_info=True)
-
-        return parsed_log
+            logger.error(f"[CowrieParser] Errore durante il parsing: {e}", exc_info=True)
+            parsed_log["event"] = "parse_error"
+            return parsed_log
