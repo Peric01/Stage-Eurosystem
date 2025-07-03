@@ -60,6 +60,10 @@ class CowrieParser(InterfaceLogParser):
             if cmd_match:
                 parsed_log["command"] = cmd_match.group(1).strip()
 
+            cmd_tried_match = re.search(r'Command not found:\s*(.+)', raw_log)
+            if cmd_tried_match:
+                parsed_log["command_tried"] = cmd_tried_match.group(1).strip()
+
             # Estrai il messaggio dopo l'ultima parentesi quadra
             msg_match = re.search(r'\]\s+(.*)$', raw_log)
             if msg_match:
