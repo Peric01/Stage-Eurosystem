@@ -39,9 +39,9 @@ class DockerLogCollector:
                 try:
                     parsed = self.parser.parse(line)
                     self.logger.debug(f"[{self.container_name}] Parsed log: {parsed}")
-                    # if parsed:
-                    #     self.publisher.publish(parsed)
-                    #     self.logger.info(f"[{self.container_name}] Published event: {parsed.get('event', 'unknown')}")
+                    if parsed:
+                        self.publisher.publish(parsed)
+                        self.logger.info(f"[{self.container_name}] Published event: {parsed.get('event', 'unknown')}")
                 except Exception as e:
                     self.logger.error(f"Error processing log from {self.container_name}: {e}", exc_info=True)
 
