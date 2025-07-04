@@ -34,7 +34,7 @@ class ApacheParser(InterfaceLogParser):
             if not match:
                 raise ValueError("Formato log non riconosciuto")
 
-            parsed_log["ip"] = match.group("ip")
+            parsed_log["src_ip"] = match.group("ip")
             parsed_log["timestamp"] = match.group("timestamp")
             parsed_log["status"] = int(match.group("status"))
 
