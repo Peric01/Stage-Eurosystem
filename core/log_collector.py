@@ -47,7 +47,8 @@ class LogCollector:
                 parsed = self.parser.parse(raw_log)
                 if parsed is not None:
                     self.publisher.publish(parsed)
-                    self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
+                    for entry in parsed:
+                        self.logger.info(f"Published event: {entry.get('type', 'unknown')}")
                 else:
                     self.logger.warning("Parsed log is None - skipped")
             except Exception as e:
