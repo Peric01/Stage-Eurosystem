@@ -25,32 +25,37 @@ class ServiceManager:
             max_retries = 3
             retry_delay = 5
             publisher = None
-
-            for attempt in range(max_retries):
-                try:
-                    publisher = MqttPublisher("46.62.130.53", "honeypot/logs")
-                    break
-                except Exception as e:
-                    self.logger.warning(f"MQTT connection failed (attempt {attempt + 1}): {e}")
-                    time.sleep(retry_delay)
-
-            if not publisher:
-                self.logger.error("Could not connect to MQTT broker. Exiting.")
-                return False
-
+            log_collectors = []
+            publishers = {}
             # Mappa: sorgente -> (parser_name, log_path)
             sources = {
-                'cowrie':   ("cowrie",   "cowrie", True),
-                #'apache':   ("apache",   "apache", True),
-                #'openldap': ("openldap", "openldap", True),
-                #'dionaea':  ("dionaea",  "dionaea", True)
-            }
+                            'cowrie':   ("cowrie",   "cowrie", True),
+                            #'apache':   ("apache",   "apache", True),
+                            #'openldap': ("openldap", "openldap", True),
+                            #'dionaea':  ("dionaea",  "dionaea", True)
+                        }
 
-            log_collectors = []
+            for name, (parser_name, path_or_container, is_docker) in sources.items():
+                topic = f"honeypot/logs/{parser_name}"
+                publisher = None
+                for attempt in range(max_retries):
+                    try:
+                        publisher = MqttPublisher("46.62.130.53", topic)
+                        break
+                    except Exception as e:
+                        self.logger.warning(f"MQTT connection failed for {parser_name} (attempt {attempt + 1}): {e}")
+                        time.sleep(retry_delay)
 
+                if not publisher:
+                    self.logger.error(f"Could not connect to MQTT broker for {parser_name}. Exiting.")
+                    return False
+
+                publishers[parser_name] = publisher
+                
             for name, (parser_name, path_or_container, is_docker) in sources.items():
                 try:
                     parser = get_parser(parser_name)
+                    publisher = publishers[parser_name]
                     if is_docker:
                         collector = DockerLogCollector(self.logger, path_or_container, parser, publisher)
                     else:
