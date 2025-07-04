@@ -30,7 +30,7 @@ class ServiceManager:
             # Mappa: sorgente -> (parser_name, log_path)
             sources = {
                             'cowrie':   ("cowrie",   "cowrie", True),
-                            #'apache':   ("apache",   "apache", True),
+                            'apache':   ("apache",   "apache", True),
                             #'openldap': ("openldap", "openldap", True),
                             #'dionaea':  ("dionaea",  "dionaea", True)
                         }
@@ -51,7 +51,7 @@ class ServiceManager:
                     return False
 
                 publishers[parser_name] = publisher
-                
+
             for name, (parser_name, path_or_container, is_docker) in sources.items():
                 try:
                     parser = get_parser(parser_name)
