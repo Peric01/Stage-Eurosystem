@@ -19,9 +19,12 @@ class DionaeaParser(InterfaceLogParser):
         entries = []
         lines = raw_log.strip().splitlines()
 
+        
         for line in lines:
+            cleanup = False
             try:
                 if re.search(r"\bwarning:\s*Cleanup\b", line, re.IGNORECASE):
+                    cleanup = True
                     continue  # Ignora le linee di warning di cleanup
                 # Timestamp
                 match_ts = re.match(r"\[(\d{8} \d{2}:\d{2}:\d{2})\]", line)
@@ -68,7 +71,7 @@ class DionaeaParser(InterfaceLogParser):
                 logger.warning(f"Parsing error on line: {line} | Error: {str(e)}")
                 continue
 
-        if not entries:
+        if not entries and not cleanup:
             logger.warning("No known Dionaea patterns found in log.")
             return [{"warning": "No parsable Dionaea entries found", "raw": raw_log}]
 
