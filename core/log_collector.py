@@ -45,11 +45,12 @@ class LogCollector:
             self.logger.debug(f"Raw log received: {raw_log}")
             try:
                 parsed = self.parser.parse(raw_log)
-                #if parsed is not None:
-                #    self.publisher.publish(parsed)
-                #    self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
-                #else:
-                #    self.logger.warning("Parsed log is None - skipped")
+                # if parsed is not None:
+                #     self.publisher.publish(parsed)
+                #     for entry in parsed:
+                #         self.logger.info(f"Published event: {entry.get('type', 'unknown')}")
+                # else:
+                #     self.logger.warning("Parsed log is None - skipped")
             except Exception as e:
                 self.logger.error(f"Error during log processing: {e}", exc_info=True)
 
