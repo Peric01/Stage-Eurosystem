@@ -21,9 +21,8 @@ class DionaeaParser(InterfaceLogParser):
 
         for line in lines:
             try:
-                if "-warning: Cleanup" in line:
-                    # Ignora le linee di warning di cleanup
-                    continue
+                if re.search(r"\bwarning:\s*Cleanup\b", line, re.IGNORECASE):
+                    continue  # Ignora le linee di warning di cleanup
                 # Timestamp
                 match_ts = re.match(r"\[(\d{8} \d{2}:\d{2}:\d{2})\]", line)
                 timestamp = match_ts.group(1) if match_ts else None
