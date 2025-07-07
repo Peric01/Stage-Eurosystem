@@ -29,8 +29,8 @@ class ServiceManager:
             publishers = {}
             # Mappa: sorgente -> (parser_name, log_path)
             sources = {
-                            'cowrie':   ("cowrie",   "cowrie", True),
-                            'apache':   ("apache",   "apache", True),
+                            #'cowrie':   ("cowrie",   "cowrie", True),
+                            #'apache':   ("apache",   "apache", True),
                             #'openldap': ("openldap", "openldap", True),
                             'dionaea':  ("dionaea", "/opt/honeypot/dionaea/log/dionaea/dionaea.log" , False)
                         }
