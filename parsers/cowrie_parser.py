@@ -58,7 +58,7 @@ class CowrieParser(InterfaceLogParser):
                     parsed_log["event"] = "login_attempt"
 
             # Comandi
-            cmd_match = re.search(r'(?:CMD|Command found):\s*(.+)', raw_log)
+            cmd_match = re.search(r'(?:CMD|Command found):\s*(.+?)(?:\\n|$)', raw_log)
             if cmd_match:
                 parsed_log["command"] = cmd_match.group(1).strip()
                 parsed_log["event"] = "command_input"
