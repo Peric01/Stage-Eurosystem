@@ -32,7 +32,7 @@ class ServiceManager:
                             #'cowrie':   ("cowrie",   "cowrie", True),
                             #'apache':   ("apache",   "apache", True),
                             #'openldap': ("openldap", "openldap", True),
-                            'dionaea':  ("dionaea", "/opt/honeypot/dionaea/log/dionaea/dionaea.log" , False)
+                            'dionaea':  ("dionaea", "/var/lib/docker/containers/20181f677794a874fcb88fa7691b392ee68b7fddbd6bb0da5a52be4a4708d0fc/20181f677794a874fcb88fa7691b392ee68b7fddbd6bb0da5a52be4a4708d0fc-json.log" , False)
                         }
 
             for name, (parser_name, path_or_container, is_docker) in sources.items():
