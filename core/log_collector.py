@@ -1,6 +1,6 @@
 import threading
 import time
-from typing import List, Optional
+from typing import List
 from logger.log_manager import LogManager
 from parsers.base_parser import InterfaceLogParser
 from publishers.base_publisher import InterfaceDataPublisher
@@ -8,6 +8,7 @@ from publishers.base_publisher import InterfaceDataPublisher
 class LogCollector:
     """
     Collects, parses, and dispatches logs from various sources.
+    Reads only newly appended lines (like tail -f).
     """
 
     def __init__(self, logger, parser: InterfaceLogParser, publisher: InterfaceDataPublisher, log_path: str):
@@ -16,16 +17,29 @@ class LogCollector:
         self.publisher = publisher
         self.log_path = log_path
         self._run_event = threading.Event()
+        self._file = None  # Per tenere traccia del file aperto
 
     def start(self):
         """Starts the log collection process in a background thread."""
         self._run_event.set()
+        try:
+            self._file = open(self.log_path, 'r')
+            self._file.seek(0, 2)  # Vai alla fine del file (come tail -f)
+        except Exception as e:
+            self.logger.error(f"Could not open log file: {e}")
+            return
+
         threading.Thread(target=self._collect_loop, daemon=True).start()
         self.logger.info("LogCollector started.")
 
     def stop(self):
         """Stops the log collection process."""
         self._run_event.clear()
+        if self._file:
+            try:
+                self._file.close()
+            except Exception as e:
+                self.logger.warning(f"Error closing file: {e}")
         self.logger.info("LogCollector stopping...")
 
     def _collect_loop(self):
@@ -33,12 +47,12 @@ class LogCollector:
         try:
             while self._run_event.is_set():
                 self.collect_logs()
-                time.sleep(2)
+                time.sleep(2)  # intervallo di polling
         except Exception as e:
             self.logger.exception("Unexpected error in log collection loop")
 
     def collect_logs(self):
-        """Reads, parses, and dispatches logs from source."""
+        """Reads, parses, and dispatches newly appended log lines."""
         raw_logs = self._read_from_source()
 
         for raw_log in raw_logs:
@@ -47,21 +61,20 @@ class LogCollector:
                 parsed = self.parser.parse(raw_log)
                 # if parsed is not None:
                 #     self.publisher.publish(parsed)
-                #     for entry in parsed:
-                #         self.logger.info(f"Published event: {entry.get('type', 'unknown')}")
-                # else:
-                #     self.logger.warning("Parsed log is None - skipped")
+                #     self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
             except Exception as e:
                 self.logger.error(f"Error during log processing: {e}", exc_info=True)
 
     def _read_from_source(self) -> List[str]:
+        """Reads new lines added to the file since the last read."""
         logs = []
         try:
-            with open(self.log_path, 'r') as f:
-                lines = f.readlines()
-                logs.extend([line.strip() for line in lines if line.strip()])
+            while True:
+                line = self._file.readline()
+                if not line:
+                    break
+                logs.append(line.strip())
         except Exception as e:
-            self.logger.error(f"Failed to read log file at {self.log_path}: {e}")
+            self.logger.error(f"Failed reading new log lines: {e}")
 
         return logs
-
