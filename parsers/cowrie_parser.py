@@ -72,7 +72,7 @@ class CowrieParser(InterfaceLogParser):
             msg_match = re.search(r'\]\s+(.*)$', raw_log)
             if msg_match:
                 parsed_log["message"] = msg_match.group(1).strip()
-
+            logger.debug(f"[CowrieParser] Parsed log: {parsed_log}")
             return parsed_log
 
         except Exception as e:
