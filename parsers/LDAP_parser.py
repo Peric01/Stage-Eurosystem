@@ -25,21 +25,21 @@ class LDAPParser(InterfaceLogParser):
         try:
             # Pattern generico
             pattern = (
-                r'(?P<timestamp>\d+)'                               # timestamp numerico
+                r'(?P<timestamp>[a-f0-9]+)'                         # timestamp es: 686fc767
                 r'\s+conn=(?P<conn_id>\d+)'                         # connessione
-                r'(?:\s+fd=(?P<fd>\d+))?'                           # file descriptor opzionale
-                r'(?:\s+op=(?P<op_id>\d+))?'                        # operation ID opzionale
-                r'\s+(?P<event_type>[A-Z]+)'                        # evento (BIND, SEARCH, etc.)
-                r'(?:\s+dn="(?P<dn>[^"]*)")?'                       # DN se presente
-                r'(?:\s+method=(?P<method>\d+))?'                   # metodo opzionale
-                r'(?:\s+base="(?P<base>[^"]*)")?'                   # base search opzionale
-                r'(?:\s+scope=(?P<scope>\d+))?'                     # scope opzionale
-                r'(?:\s+deref=(?P<deref>\d+))?'                     # deref opzionale
-                r'(?:\s+filter="(?P<filter>[^"]*)")?'               # filtro di ricerca
-                r'(?:\s+RESULT\s+tag=\d+\s+err=(?P<err>\d+))?'      # result code se presente
-                r'(?:\s+nentries=(?P<nentries>\d+))?'              # risultati trovati
-                r'(?:\s+text=(?P<text>.*))?'                        # eventuale testo errore
-                r'(?:\s+ACCEPT from IP=(?P<src_ip>[\d\.]+):(?P<src_port>\d+))?'  # info connessione
+                r'(?:\s+fd=(?P<fd>\d+))?'                           # file descriptor
+                r'(?:\s+op=(?P<op_id>\d+))?'                        # operation ID
+                r'\s+(?P<event_type>[A-Z]+|closed|ACCEPT)'          # evento in MAIUSCOLO o closed/ACCEPT
+                r'(?:\s+dn="(?P<dn>[^"]*)")?'                       # DN
+                r'(?:\s+method=(?P<method>\d+))?'                   # metodo
+                r'(?:\s+base="(?P<base>[^"]*)")?'                   # base search
+                r'(?:\s+scope=(?P<scope>\d+))?'                     # scope
+                r'(?:\s+deref=(?P<deref>\d+))?'                     # deref
+                r'(?:\s+filter="(?P<filter>[^"]*)")?'               # filtro
+                r'(?:\s+RESULT\s+tag=\d+\s+err=(?P<err>\d+))?'      # codice errore
+                r'(?:\s+nentries=(?P<nentries>\d+))?'               # numero risultati
+                r'(?:\s+text=(?P<text>.*))?'                        # testo errore
+                r'(?:\s+ACCEPT from IP=(?P<src_ip>[\d\.]+):(?P<src_port>\d+))?'  # ACCEPT info IP
             )
 
             match = re.search(pattern, raw_log)
@@ -71,6 +71,6 @@ class LDAPParser(InterfaceLogParser):
             return parsed
 
         except Exception as e:
-            logger.error(f"[LDAPParser] Errore parsing log: {e} — Log: {raw_log}", exc_info=True)
+            logger.error(f"[LDAPParser] Errore parsing log: {e} — Log: {raw_log}", exc_info=False)
             parsed["event"] = "parse_error"
             return parsed
