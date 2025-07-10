@@ -16,7 +16,7 @@ def get_parser(name: str):
         return CowrieParser()
     elif name.lower() == "dionaea":
         return DionaeaParser()
-    elif name.lower() == "ldap":
+    elif name.lower() == "openldap":
         return LDAPParser()
     elif name.lower() == "apache":
         return ApacheParser()
