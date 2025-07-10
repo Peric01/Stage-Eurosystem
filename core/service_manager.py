@@ -29,10 +29,10 @@ class ServiceManager:
             publishers = {}
             # Mappa: sorgente -> (parser_name, log_path)
             sources = {
-                            'cowrie':   ("cowrie",   "/var/lib/docker/containers/26f9f9ed1d8cb4e7146e66190b1f6433f29e605af78a497f485dcb252a6f90a0/26f9f9ed1d8cb4e7146e66190b1f6433f29e605af78a497f485dcb252a6f90a0-json.log", False),
-                            #'apache':   ("apache",   "/var/lib/docker/containers/71e33be57c278a945262974fd87f5b3c9285591a62cfb2e6f0fb06d67fa4ede3/71e33be57c278a945262974fd87f5b3c9285591a62cfb2e6f0fb06d67fa4ede3-json.log", False),
-                            #'openldap': ("openldap", "/var/lib/docker/containers/14d00ea249268b8a278c1816145914549f2addb972b86004a4ea3d6282a80750/14d00ea249268b8a278c1816145914549f2addb972b86004a4ea3d6282a80750-json.log", False),
-                            #'dionaea':  ("dionaea", "/var/lib/docker/containers/20181f677794a874fcb88fa7691b392ee68b7fddbd6bb0da5a52be4a4708d0fc/20181f677794a874fcb88fa7691b392ee68b7fddbd6bb0da5a52be4a4708d0fc-json.log" , False)
+                            'cowrie':   ("cowrie",   "/opt/honeypot/logs/cowrie/cowrie.json", False),
+                            #'apache':   ("apache",   "/opt/honeypot/logs/apache/", False),
+                            #'openldap': ("openldap", "/opt/honeypot/logs/openldap/openldap.log", False),
+                            #'dionaea':  ("dionaea", "/opt/honeypot/logs/dionaea/dionaea.log" , False)
                         }
 
             for name, (parser_name, path_or_container, is_docker) in sources.items():
