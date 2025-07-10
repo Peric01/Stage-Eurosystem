@@ -30,6 +30,7 @@ class CowrieParser(InterfaceLogParser):
                 "session": log_data.get("session"),
                 "protocol": log_data.get("protocol")
             }
+            logger.info(f"Parsed log: {log_data}")
         except json.JSONDecodeError:
             logger.error(f"Failed to parse log: {raw_log}")
             return {
