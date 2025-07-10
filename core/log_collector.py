@@ -59,6 +59,7 @@ class LogCollector:
             self.logger.debug(f"Raw log received: {raw_log}")
             try:
                 parsed = self.parser.parse(raw_log)
+                self.logger.info(f"Parsed log: {parsed}")
                 # if parsed is not None:
                 #     self.publisher.publish(parsed)
                 #     self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
