@@ -16,14 +16,14 @@ class DionaeaParser(InterfaceLogParser):
     """
 
     def parse(self, raw_log: str) -> list[dict[str, Any]]:
-        parsed_logs = []
+        parsed_logs = None
 
         try:
             # --- Parsing del timestamp ---
             raw_timestamp = re.search(r'\[(\d{2})(\d{2})(\d{4}) (\d{2}):(\d{2}):(\d{2})\]', raw_log)
             if not raw_timestamp:
                 logger.warning("No valid timestamp found in log entry")
-                return []
+                return None
 
             timestamp = datetime.datetime(
                 year=int(raw_timestamp.group(3)),
@@ -38,7 +38,7 @@ class DionaeaParser(InterfaceLogParser):
             # --- Ignora eventi noti da escludere ---
             if re.search(r'\] sip .+?-warning: Cleanup', raw_log):
                 logger.debug("Ignoring SIP cleanup event")
-                return []
+                return None
 
             # --- Event name ---
             event = re.search(r'\] (\w+) /', raw_log)
@@ -82,6 +82,6 @@ class DionaeaParser(InterfaceLogParser):
 
         except Exception as e:
             logger.error(f"Error during parsing log: {e}", exc_info=True)
-            return []
+            return None
 
         return parsed_logs
