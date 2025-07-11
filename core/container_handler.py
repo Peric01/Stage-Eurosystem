@@ -17,7 +17,7 @@ def start_container_handler(run_event: threading.Event):
         while run_event.is_set():
             # Main container management logic would go here
             # For now, just log periodically to show it's running
-            logger.debug("Container handler active - monitoring containers")
+            #logger.debug("Container handler active - monitoring containers")
             time.sleep(10)
            
     except Exception as e:

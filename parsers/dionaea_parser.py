@@ -1,72 +1,87 @@
 import re
 from datetime import datetime
+from typing import List, Dict
 
 class DionaeaParser:
-    def __init__(self):
-        # Regex generico per il timestamp e tipo log
-        self.base_pattern = re.compile(
-            r'\[(\d{8} \d{2}:\d{2}:\d{2})\] (\w+) ([^:]+):(\d+)-(debug|info|message): (.+)'
-        )
+    def parse(self, raw_log: str) -> List[Dict]:
+        parsed_logs = []
 
-        # Pattern dettagliati (esempi reali)
-        self.patterns = [
-            {
-                'type': 'connection',
-                'regex': re.compile(
-                    r'connection (?P<conn_id>0x[a-f0-9]+) accept/(?P<protocol>\w+)/(?P<state>\w+) \[(?P<src_ip>[\d\.]+):(?P<src_port>\d+)->(?P<dst_ip>[\d\.]+):(?P<dst_port>\d+)\] state: (?P<from_state>\w+)->(?P<to_state>\w+)',
-                    re.IGNORECASE
-                )
-            },
-            {
-                'type': 'incident',
-                'regex': re.compile(
-                    r'traceable_ihandler_cb incident (?P<incident_id>0x[a-f0-9]+) ctx (?P<context>0x[a-f0-9]+)'
-                )
-            },
-            {
-                'type': 'disconnect',
-                'regex': re.compile(
-                    r'traceable_disconnect_cb con (?P<conn_id>0x[a-f0-9]+) ctx (?P<context>0x[a-f0-9]+)'
-                )
-            },
-            {
-                'type': 'username',
-                'regex': re.compile(r'username: \(string\) (?P<username>\S+)', re.IGNORECASE)
-            },
-            {
-                'type': 'password',
-                'regex': re.compile(r'password: \(string\) (?P<password>\S+)', re.IGNORECASE)
-            },
-        ]
-
-    def parse(self, log: str):
-        match = self.base_pattern.match(log)
-        if not match:
-            return [{'warning': 'Unparsable Dionaea log format', 'raw': log}]
-
-        timestamp_str, category, file_info, line, level, message = match.groups()
-        try:
-            timestamp = datetime.strptime(timestamp_str, "%d%m%Y %H:%M:%S")
-        except ValueError:
-            timestamp = None
-
-        parsed_entries = []
-
-        for pattern in self.patterns:
-            m = pattern['regex'].search(message)
-            if m:
-                data = {
-                    'type': pattern['type'],
-                    'timestamp': timestamp.isoformat() if timestamp else None,
-                    **m.groupdict()
-                }
-                parsed_entries.append(data)
-                break
-
-        if not parsed_entries:
-            parsed_entries.append({
-                'warning': 'No parsable Dionaea entries found',
-                'raw': log
+        timestamp = self.extract_timestamp(raw_log)
+        if not timestamp:
+            return [{"warning": "Invalid timestamp", "raw": raw_log}]
+       
+        # Pattern: traceable_ihandler_cb incident <id> ctx <ctx>
+        match = re.search(r'traceable_ihandler_cb incident (\S+) ctx (\S+)', raw_log)
+        if match:
+            parsed_logs.append({
+                "type": "incident",
+                "timestamp": timestamp,
+                "incident_id": match.group(1),
+                "context": match.group(2),
             })
+            return parsed_logs
 
-        return parsed_entries
+        # Pattern: cmd 'b'PASS''
+        match = re.search(r"cmd\s+'b'(.*?)''", raw_log)
+        if match:
+            parsed_logs.append({
+                "type": "ftp_command",
+                "timestamp": timestamp,
+                "command": match.group(1)
+            })
+            return parsed_logs
+
+        # Pattern: command: (string) USER
+        match = re.search(r'command: \(string\) (\w+)', raw_log)
+        if match:
+            parsed_logs.append({
+                "type": "ftp_command",
+                "timestamp": timestamp,
+                "command": match.group(1)
+            })
+            return parsed_logs
+
+        # Pattern: (null): (string) anonymous
+        if "(string) anonymous" in raw_log:
+            parsed_logs.append({
+                "type": "ftp_login",
+                "timestamp": timestamp,
+                "user": "anonymous"
+            })
+            return parsed_logs
+
+        # Pattern: ftp.py:.*b'PASS .*'
+        match = re.search(r"ftp\.py:[\d]+-debug: b'PASS (.*?)\\r\\n'", raw_log)
+        if match:
+            parsed_logs.append({
+                "type": "ftp_password",
+                "timestamp": timestamp,
+                "password": match.group(1)
+            })
+            return parsed_logs
+
+        # Altri incident ID semplici (senza ctx)
+        match = re.search(r'incident (\S+) dionaea', raw_log)
+        if match:
+            parsed_logs.append({
+                "type": "incident",
+                "timestamp": timestamp,
+                "incident_id": match.group(1)
+            })
+            return parsed_logs
+
+        # Nessun pattern corrispondente
+        parsed_logs.append({
+            "warning": "No parsable Dionaea entries found",
+            "raw": raw_log
+        })
+
+        return parsed_logs
+
+    def extract_timestamp(self, raw_log: str) -> str:
+        match = re.search(r'\[(\d{2})(\d{2})(\d{4}) (\d{2}):(\d{2}):(\d{2})\]', raw_log)
+        if match:
+            day, month, year, hour, minute, second = match.groups()
+            dt = datetime.strptime(f"{year}-{month}-{day} {hour}:{minute}:{second}", "%Y-%m-%d %H:%M:%S")
+            return dt.isoformat()
+        return ""
