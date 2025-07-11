@@ -44,7 +44,8 @@ class LDAPParser(InterfaceLogParser):
 
             match = re.search(pattern, raw_log)
             if not match:
-                raise ValueError("Log non riconosciuto")
+                logger.warning(f"Log non riconosciuto: {raw_log}")
+                return []
 
             groups = match.groupdict()
 
@@ -72,5 +73,4 @@ class LDAPParser(InterfaceLogParser):
 
         except Exception as e:
             logger.error(f"[LDAPParser] Errore parsing log: {e} — Log: {raw_log}", exc_info=False)
-            parsed["event"] = "parse_error"
-            return parsed
+            return []

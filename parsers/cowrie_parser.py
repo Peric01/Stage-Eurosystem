@@ -18,9 +18,9 @@ class CowrieParser(InterfaceLogParser):
             log_data = json.loads(raw_log)
             return {
                 "timestamp": log_data.get("timestamp"),
-                "src_ip": log_data.get("src_ip"),
+                "src_ip": log_data.get("src_ip"),   # Indirizzo IP sorgente (chi effettua la connessione)
                 "src_port": log_data.get("src_port"),
-                "dst_ip": log_data.get("dst_ip"),
+                "dst_ip": log_data.get("dst_ip"),   # Indirizzo IP destinazione (honeypot che riceve la connessione)
                 "dst_port": log_data.get("dst_port"),
                 "event": log_data.get("eventid"),
                 "message": log_data.get("message"),
@@ -37,7 +37,4 @@ class CowrieParser(InterfaceLogParser):
             }
         except json.JSONDecodeError:
             logger.error(f"Failed to parse log: {raw_log}")
-            return {
-                "error": "Failed to parse log",
-                "raw": raw_log
-            }
+            return []

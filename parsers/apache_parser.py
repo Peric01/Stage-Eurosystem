@@ -32,7 +32,8 @@ class ApacheParser(InterfaceLogParser):
 
             match = re.match(pattern, raw_log)
             if not match:
-                raise ValueError("Formato log non riconosciuto")
+                logger.warning(f"Log non riconosciuto: {raw_log}")
+                return []
 
             parsed_log["src_ip"] = match.group("ip")
             parsed_log["timestamp"] = match.group("timestamp")
@@ -65,5 +66,4 @@ class ApacheParser(InterfaceLogParser):
 
         except Exception as e:
             logger.error(f"[ApacheParser] Errore durante il parsing: {e} — Log: {raw_log}", exc_info=True)
-            parsed_log["event"] = "parse_error"
-            return parsed_log
+            return []
