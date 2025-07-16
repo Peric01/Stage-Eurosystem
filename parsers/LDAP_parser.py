@@ -18,7 +18,6 @@ class LDAPParser(InterfaceLogParser):
 
     def parse(self, raw_log: str) -> dict[str, Any]:
         parsed: dict[str, Any] = {
-            "raw": raw_log,
             "event": "ldap_event"
         }
 

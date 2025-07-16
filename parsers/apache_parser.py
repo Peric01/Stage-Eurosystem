@@ -16,7 +16,6 @@ class ApacheParser(InterfaceLogParser):
     '''
     def parse(self, raw_log: str) -> dict[str, Any]:
         parsed_log: dict[str, Any] = {
-            "raw": raw_log,
             "event": "apache_access"
         }
 
