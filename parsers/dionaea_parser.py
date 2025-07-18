@@ -44,9 +44,9 @@ class DionaeaParser(InterfaceLogParser):
                 return parsed_log
 
             # --- Event name ---
-            event = re.search(r'\] (\w+) /', raw_log)
-            if event:
-                parsed_log["event"] = event.group(1)
+            # event = re.search(r'\] (\w+) /', raw_log)
+            # if event:
+            #     parsed_log["event"] = event.group(1)
 
             # --- Messaggio log ---
             message = re.search(r'(?:debug|info|warning|critical|error):\s*(.*)', raw_log)
@@ -75,12 +75,6 @@ class DionaeaParser(InterfaceLogParser):
                 parsed_log["src_port"] = conn_match.group(2)
                 parsed_log["dst_ip"] = conn_match.group(3)
                 parsed_log["dst_port"] = conn_match.group(4)
-
-                # Check datatypes
-                logger.warning(f"src_ip type: {type(parsed_log['src_ip'])}")
-                logger.warning(f"src_port type: {type(parsed_log['src_port'])}")
-                logger.warning(f"dst_ip type: {type(parsed_log['dst_ip'])}")
-                logger.warning(f"dst_port type: {type(parsed_log['dst_port'])}")
 
             # latitude, longitude = GeomapIP.fetch_location(parsed_log["src_ip"])
             # parsed_log["latitude"] = latitude
