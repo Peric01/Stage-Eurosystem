@@ -75,6 +75,8 @@ class DionaeaParser(InterfaceLogParser):
                 parsed_log["src_port"] = conn_match.group(2)
                 parsed_log["dst_ip"] = conn_match.group(3)
                 parsed_log["dst_port"] = conn_match.group(4)
+                logger.debug(f"Parsed log: {parsed_log}")
+            
 
             # latitude, longitude = GeomapIP.fetch_location(parsed_log["src_ip"])
             # parsed_log["latitude"] = latitude
