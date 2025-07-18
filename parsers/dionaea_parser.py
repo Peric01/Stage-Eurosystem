@@ -44,9 +44,9 @@ class DionaeaParser(InterfaceLogParser):
                 return parsed_log
 
             # --- Event name ---
-            # event = re.search(r'\] (\w+) /', raw_log)
-            # if event:
-            #     parsed_log["event"] = event.group(1)
+            event = re.search(r'\] (\w+) /', raw_log)
+            if event:
+                parsed_log["event"] = event.group(1)
 
             # --- Messaggio log ---
             message = re.search(r'(?:debug|info|warning|critical|error):\s*(.*)', raw_log)
