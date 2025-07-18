@@ -2,6 +2,7 @@ from parsers.base_parser import InterfaceLogParser
 import json
 from typing import Any
 import logging
+from core.geomap_ip import GeomapIP
 
 logger = logging.getLogger("LogSystem")
 
@@ -16,10 +17,13 @@ class CowrieParser(InterfaceLogParser):
     def parse(self, raw_log: str) -> dict[str, Any]:
         try:
             log_data = json.loads(raw_log)
+            latitude, longitude = GeomapIP.fetch_location(log_data.get("src_ip"))
             return {
                 "timestamp": log_data.get("timestamp"),
                 "src_ip": log_data.get("src_ip"),   # Indirizzo IP sorgente (chi effettua la connessione)
                 "src_port": log_data.get("src_port"),
+                "latitude": latitude,
+                "longitude": longitude,
                 "dst_ip": log_data.get("dst_ip"),   # Indirizzo IP destinazione (honeypot che riceve la connessione)
                 "dst_port": log_data.get("dst_port"),
                 "event": log_data.get("eventid"),

@@ -2,6 +2,7 @@ from parsers.base_parser import InterfaceLogParser
 from typing import Any
 import re
 import logging
+from core.geomap_ip import GeomapIP
 
 logger = logging.getLogger("LogSystem")
 
@@ -35,6 +36,9 @@ class ApacheParser(InterfaceLogParser):
                 return []
 
             parsed_log["src_ip"] = match.group("ip")
+            latitude, longitude = GeomapIP.fetch_location(parsed_log["src_ip"])
+            parsed_log["latitude"] = latitude
+            parsed_log["longitude"] = longitude
             parsed_log["timestamp"] = match.group("timestamp")
             parsed_log["status"] = int(match.group("status"))
 

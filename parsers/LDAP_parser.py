@@ -2,6 +2,7 @@ from parsers.base_parser import InterfaceLogParser
 from typing import Any
 import re
 import logging
+from core.geomap_ip import GeomapIP
 
 logger = logging.getLogger("LogSystem")
 
@@ -68,7 +69,11 @@ class LDAPParser(InterfaceLogParser):
                 "src_port": int(groups["src_port"]) if groups["src_port"] else None,
             })
 
-            return parsed
+            # Geolocalizzazione IP sorgente
+            if parsed.get("src_ip"):
+                latitude, longitude = GeomapIP.fetch_location(parsed["src_ip"])
+                parsed["latitude"] = latitude
+                parsed["longitude"] = longitude
 
         except Exception as e:
             logger.error(f"[LDAPParser] Errore parsing log: {e} — Log: {raw_log}", exc_info=False)

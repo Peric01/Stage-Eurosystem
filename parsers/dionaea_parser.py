@@ -3,6 +3,7 @@ from parsers.base_parser import InterfaceLogParser
 from typing import Any
 import logging
 import datetime
+from core.geomap_ip import GeomapIP
 
 logger = logging.getLogger("LogSystem")
 
@@ -19,7 +20,7 @@ class DionaeaParser(InterfaceLogParser):
         parsed_log: dict[str, Any] = {
             "event": "dionaea_event"
         }
-
+        logger.debug(f"Parsing raw log: {raw_log}")
         try:
             # --- Parsing del timestamp ---
             raw_timestamp = re.search(r'\[(\d{2})(\d{2})(\d{4}) (\d{2}):(\d{2}):(\d{2})\]', raw_log)
@@ -74,6 +75,10 @@ class DionaeaParser(InterfaceLogParser):
                 parsed_log["src_port"] = conn_match.group(2)
                 parsed_log["dst_ip"] = conn_match.group(3)
                 parsed_log["dst_port"] = conn_match.group(4)
+
+            latitude, longitude = GeomapIP.fetch_location(parsed_log["src_ip"])
+            parsed_log["latitude"] = latitude
+            parsed_log["longitude"] = longitude
 
             # --- Attack ID ---
             attack_id = re.search(r'attackid\s+(\d+)', raw_log)
