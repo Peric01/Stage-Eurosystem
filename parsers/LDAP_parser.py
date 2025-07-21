@@ -17,44 +17,42 @@ class LDAPParser(InterfaceLogParser):
     - conn=1005 fd=12 closed (connection lost)
     '''
 
-    def parse(self, raw_log: str) -> dict[str, Any]:
+    def parse(self, raw_log: str) -> dict[str, Any] | None:
         parsed: dict[str, Any] = {
             "event": "ldap_event"
         }
 
         try:
-            # Pattern generico
             pattern = (
-                r'(?P<timestamp>[a-f0-9]+)'                         # timestamp es: 686fc767
-                r'\s+conn=(?P<conn_id>\d+)'                         # connessione
-                r'(?:\s+fd=(?P<fd>\d+))?'                           # file descriptor
-                r'(?:\s+op=(?P<op_id>\d+))?'                        # operation ID
-                r'\s+(?P<event_type>[A-Z]+|closed|ACCEPT)'          # evento in MAIUSCOLO o closed/ACCEPT
-                r'(?:\s+dn="(?P<dn>[^"]*)")?'                       # DN
-                r'(?:\s+method=(?P<method>\d+))?'                   # metodo
-                r'(?:\s+base="(?P<base>[^"]*)")?'                   # base search
-                r'(?:\s+scope=(?P<scope>\d+))?'                     # scope
-                r'(?:\s+deref=(?P<deref>\d+))?'                     # deref
-                r'(?:\s+filter="(?P<filter>[^"]*)")?'               # filtro
-                r'(?:\s+RESULT\s+tag=\d+\s+err=(?P<err>\d+))?'      # codice errore
-                r'(?:\s+nentries=(?P<nentries>\d+))?'               # numero risultati
-                r'(?:\s+text=(?P<text>.*))?'                        # testo errore
-                r'(?:\s+ACCEPT from IP=(?P<src_ip>[\d\.]+):(?P<src_port>\d+))?'  # ACCEPT info IP
+                r'(?P<timestamp>[a-f0-9]+)'
+                r'\s+conn=(?P<conn_id>\d+)'
+                r'(?:\s+fd=(?P<fd>\d+))?'
+                r'(?:\s+op=(?P<op_id>\d+))?'
+                r'\s+(?P<event_type>[A-Z]+|closed|ACCEPT)'
+                r'(?:\s+dn="(?P<dn>[^"]*)")?'
+                r'(?:\s+method=(?P<method>\d+))?'
+                r'(?:\s+base="(?P<base>[^"]*)")?'
+                r'(?:\s+scope=(?P<scope>\d+))?'
+                r'(?:\s+deref=(?P<deref>\d+))?'
+                r'(?:\s+filter="(?P<filter>[^"]*)")?'
+                r'(?:\s+RESULT\s+tag=\d+\s+err=(?P<err>\d+))?'
+                r'(?:\s+nentries=(?P<nentries>\d+))?'
+                r'(?:\s+text=(?P<text>.*))?'
+                r'(?:\s+ACCEPT from IP=(?P<src_ip>[\d\.]+):(?P<src_port>\d+))?'
             )
 
             match = re.search(pattern, raw_log)
             if not match:
                 logger.warning(f"Log non riconosciuto: {raw_log}")
-                return []
+                return None
 
             groups = match.groupdict()
 
-            # Assegna campi utili
             parsed.update({
                 "timestamp": groups["timestamp"],
                 "connection_id": int(groups["conn_id"]),
                 "operation_id": int(groups["op_id"]) if groups["op_id"] else None,
-                "event": groups["event_type"].lower(),  # bind, search, etc.
+                "event": groups["event_type"].lower(),
                 "fd": int(groups["fd"]) if groups["fd"] else None,
                 "dn": groups["dn"],
                 "method": int(groups["method"]) if groups["method"] else None,
@@ -69,12 +67,14 @@ class LDAPParser(InterfaceLogParser):
                 "src_port": int(groups["src_port"]) if groups["src_port"] else None,
             })
 
-            # Geolocalizzazione IP sorgente
+            # Geolocalizzazione IP
             if parsed.get("src_ip"):
                 latitude, longitude = GeomapIP.fetch_location(parsed["src_ip"])
                 parsed["latitude"] = latitude
                 parsed["longitude"] = longitude
 
+            return parsed
+
         except Exception as e:
             logger.error(f"[LDAPParser] Errore parsing log: {e} — Log: {raw_log}", exc_info=False)
-            return []
+            return None
