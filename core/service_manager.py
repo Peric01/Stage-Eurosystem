@@ -31,8 +31,8 @@ class ServiceManager:
             sources = {
                             #'cowrie':   ("cowrie",   "/opt/honeypot/logs/cowrie/cowrie.json", False),
                             #'apache':   ("apache",   "/opt/honeypot/logs/apache/access.log", False),
-                            'openldap': ("openldap", "/opt/honeypot/logs/openldap/openldap.log", False),
-                            # 'dionaea':  ("dionaea", "/opt/honeypot/logs/dionaea/dionaea.log" , False)
+                            #'openldap': ("openldap", "/opt/honeypot/logs/openldap/openldap.log", False),
+                            'dionaea':  ("dionaea", "/opt/honeypot/logs/dionaea/dionaea.log" , False)
                         }
 
             for name, (parser_name, path_or_container, is_docker) in sources.items():
