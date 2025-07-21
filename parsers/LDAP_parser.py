@@ -24,21 +24,21 @@ class LDAPParser(InterfaceLogParser):
 
         try:
             pattern = (
-                r'(?P<timestamp>[a-f0-9]+)'
-                r'\s+conn=(?P<conn_id>\d+)'
-                r'(?:\s+fd=(?P<fd>\d+))?'
-                r'(?:\s+op=(?P<op_id>\d+))?'
-                r'\s+(?P<event_type>[A-Z]+|closed|ACCEPT)'
-                r'(?:\s+dn="(?P<dn>[^"]*)")?'
-                r'(?:\s+method=(?P<method>\d+))?'
-                r'(?:\s+base="(?P<base>[^"]*)")?'
-                r'(?:\s+scope=(?P<scope>\d+))?'
-                r'(?:\s+deref=(?P<deref>\d+))?'
-                r'(?:\s+filter="(?P<filter>[^"]*)")?'
-                r'(?:\s+RESULT\s+tag=\d+\s+err=(?P<err>\d+))?'
-                r'(?:\s+nentries=(?P<nentries>\d+))?'
-                r'(?:\s+text=(?P<text>.*))?'
-                r'(?:\s+ACCEPT from IP=(?P<src_ip>[\d\.]+):(?P<src_port>\d+))?'
+                r'(?P<timestamp>[a-f0-9]+)\s+'
+                r'conn=(?P<conn_id>\d+)'                          # conn=1011
+                r'(?:\s+fd=(?P<fd>\d+))?'                         # fd=12
+                r'(?:\s+op=(?P<op_id>\d+))?'                      # op=0
+                r'\s+(?P<event_type>[A-Z_]+|closed|ACCEPT)'       # BIND, RESULT, SEARCH_RESULT, etc.
+                r'(?:\s+dn="(?P<dn>[^"]*)")?'                     # dn=""
+                r'(?:\s+method=(?P<method>\d+))?'                 # method=128
+                r'(?:\s+base="(?P<base>[^"]*)")?'                 # base="dc=example,dc=com"
+                r'(?:\s+scope=(?P<scope>\d+))?'                   # scope=2
+                r'(?:\s+deref=(?P<deref>\d+))?'                   # deref=0
+                r'(?:\s+filter="(?P<filter>[^"]*)")?'             # filter="(objectClass=*)"
+                r'(?:\s+RESULT\s+tag=\d+\s+err=(?P<err>\d+))?'    # RESULT tag=... err=...
+                r'(?:\s+nentries=(?P<nentries>\d+))?'             # nentries=0
+                r'(?:\s+text=(?P<text>.*?))?'                     # text=... (può essere vuoto)
+                r'(?:\s+ACCEPT from IP=(?P<src_ip>[\d\.]+):(?P<src_port>\d+))?'  # IP
             )
 
             match = re.search(pattern, raw_log)
@@ -52,7 +52,7 @@ class LDAPParser(InterfaceLogParser):
                 "timestamp": groups["timestamp"],
                 "connection_id": int(groups["conn_id"]),
                 "operation_id": int(groups["op_id"]) if groups["op_id"] else None,
-                "event": groups["event_type"].lower(),
+                "event": groups["event_type"].replace(" ", "_").lower(),
                 "fd": int(groups["fd"]) if groups["fd"] else None,
                 "dn": groups["dn"],
                 "method": int(groups["method"]) if groups["method"] else None,
@@ -62,12 +62,11 @@ class LDAPParser(InterfaceLogParser):
                 "filter": groups["filter"],
                 "error_code": int(groups["err"]) if groups["err"] else None,
                 "entries": int(groups["nentries"]) if groups["nentries"] else None,
-                "error_text": groups["text"],
+                "error_text": groups["text"] if groups["text"] is not None else None,
                 "src_ip": groups["src_ip"],
                 "src_port": int(groups["src_port"]) if groups["src_port"] else None,
             })
 
-            # Geolocalizzazione IP
             if parsed.get("src_ip"):
                 latitude, longitude = GeomapIP.fetch_location(parsed["src_ip"])
                 parsed["latitude"] = latitude
