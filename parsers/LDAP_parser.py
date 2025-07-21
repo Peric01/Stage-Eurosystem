@@ -39,68 +39,32 @@ class LDAPParser(InterfaceLogParser):
         }
 
         logger.debug(f"Parsing raw log: {raw_log}")
-
         try:
-            # --- Estrattore principale (regex combinata flessibile) ---
-            pattern = (
-                r'(?P<timestamp>[a-f0-9]+)\s+'
-                r'conn=(?P<conn_id>\d+)'
-                r'(?:\s+fd=(?P<fd>\d+))?'
-                r'(?:\s+op=(?P<op_id>\d+))?'
-                r'\s+(?P<event_type>[A-Z_]+|closed|ACCEPT)'
-                r'(?:\s+dn="(?P<dn>[^"]*)")?'
-                r'(?:\s+method=(?P<method>\d+))?'
-                r'(?:\s+base="(?P<base>[^"]*)")?'
-                r'(?:\s+scope=(?P<scope>\d+))?'
-                r'(?:\s+deref=(?P<deref>\d+))?'
-                r'(?:\s+filter="(?P<filter>[^"]*)")?'
-                r'(?:\s+RESULT\s+tag=\d+\s+err=(?P<err>\d+))?'
-                r'(?:\s+nentries=(?P<nentries>\d+))?'
-                r'(?:\s+text=(?P<text>.*?))?'
-                r'(?:\s+ACCEPT from IP=(?P<src_ip>[\d\.]+):(?P<src_port>\d+))?'
-            )
 
-            match = re.search(pattern, raw_log)
-            if not match:
-                logger.warning(f"Log non riconosciuto: {raw_log}")
-                return parsed_log  # fallback vuoto
-
-            g = match.groupdict()
-
-            # --- Timestamp (hex form, no datetime conversion) ---
-            parsed_log["timestamp"] = g["timestamp"]
-
-            # --- Informazioni connessione ---
-            parsed_log["connection_id"] = int(g["conn_id"])
-            parsed_log["fd"] = int(g["fd"]) if g["fd"] else None
-            parsed_log["operation_id"] = int(g["op_id"]) if g["op_id"] else None
-
-            # --- Evento primario ---
-            parsed_log["event"] = g["event_type"].replace(" ", "_").lower()
-
-            # --- Campi LDAP ---
-            parsed_log["dn"] = g["dn"]
-            parsed_log["method"] = int(g["method"]) if g["method"] else None
-            parsed_log["base"] = g["base"]
-            parsed_log["scope"] = int(g["scope"]) if g["scope"] else None
-            parsed_log["deref"] = int(g["deref"]) if g["deref"] else None
-            parsed_log["filter"] = g["filter"]
-
-            # --- Risultato operazione ---
-            parsed_log["error_code"] = int(g["err"]) if g["err"] else None
-            parsed_log["entries"] = int(g["nentries"]) if g["nentries"] else None
-            parsed_log["error_text"] = g["text"] if g["text"] is not None else None
-
-            # --- IP sorgente ---
-            if g["src_ip"]:
-                parsed_log["src_ip"] = g["src_ip"]
-                parsed_log["src_port"] = int(g["src_port"])
-                try:
-                    latitude, longitude = GeomapIP.fetch_location(g["src_ip"])
-                    parsed_log["latitude"] = latitude
-                    parsed_log["longitude"] = longitude
-                except Exception as geo_err:
-                    logger.warning(f"Geolocalizzazione fallita per IP {g['src_ip']}: {geo_err}")
+            conn_id_match = re.search(r'conn=(\d+)', raw_log)
+            if conn_id_match:
+                parsed_log["conn_id"] = int(conn_id_match.group(1))
+            src_ip_match = re.search(r'IP=(\d+\.\d+\.\d+\.\d+):(\d+)', raw_log)
+            op_id_match = re.search(r'op=(\d+)', raw_log)
+            if op_id_match:
+                parsed_log["op_id"] = int(op_id_match.group(1))
+            fd_match = re.search(r'fd=(\d+)', raw_log)
+            if fd_match:
+                parsed_log["fd"] = int(fd_match.group(1))
+            dn_match = re.search(r'dn="([^"]+)"', raw_log)
+            if dn_match:
+                parsed_log["dn"] = dn_match.group(1)
+            # Estrai l'evento dopo fd= o op= (es: ACCEPT, BIND, SEARCH, UNBIND, ecc. anche in minuscolo)
+            event_match = re.search(r'(?:fd=\d+\s+|op=\d+\s+)([A-Za-z]+)', raw_log)
+            if event_match:
+                parsed_log["action"] = event_match.group(1)
+            if src_ip_match:
+                parsed_log["src_ip"] = src_ip_match.group(1)
+                parsed_log["src_port"] = int(src_ip_match.group(2))
+            # L'IP di destinazione è sempre 0.0.0.0, estrai solo la porta dopo i due punti
+            dst_port_match = re.search(r'IP=0\.0\.0\.0:(\d+)', raw_log)
+            if dst_port_match:
+                parsed_log["dst_port"] = int(dst_port_match.group(1))
 
         except Exception as e:
             logger.error(f"[LDAPParser] Errore durante il parsing: {e}", exc_info=True)
