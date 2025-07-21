@@ -43,7 +43,7 @@ class LDAPParser(InterfaceLogParser):
 
             conn_id_match = re.search(r'conn=(\d+)', raw_log)
             if conn_id_match:
-                parsed_log["conn_id"] = int(conn_id_match.group(1))
+                parsed_log["connection_id"] = int(conn_id_match.group(1))
             src_ip_match = re.search(r'IP=(\d+\.\d+\.\d+\.\d+):(\d+)', raw_log)
             op_id_match = re.search(r'op=(\d+)', raw_log)
             if op_id_match:
