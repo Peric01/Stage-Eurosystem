@@ -57,11 +57,22 @@ class LDAPParser(InterfaceLogParser):
             # Estrai l'evento dopo fd= o op= (es: ACCEPT, BIND, SEARCH, UNBIND, ecc. anche in minuscolo)
             event_match = re.search(r'(?:fd=\d+\s+|op=\d+\s+)([A-Za-z]+)', raw_log)
             if event_match:
-                parsed_log["action"] = event_match.group(1)
+                parsed_log["event"] = event_match.group(1)
+                # Se l'evento è BIND, estrai la CN come username
+                if event_match.group(1).upper() == "BIND" and dn_match:
+                    cn_match = re.search(r'cn=([^,]+)', dn_match.group(1))
+                    if cn_match:
+                        parsed_log["username"] = cn_match.group(1)
+            err_match = re.search(r'err=(\d+)', raw_log)
+            if err_match:
+                parsed_log["error"] = int(err_match.group(1))
             if src_ip_match:
                 parsed_log["src_ip"] = src_ip_match.group(1)
                 parsed_log["src_port"] = int(src_ip_match.group(2))
             # L'IP di destinazione è sempre 0.0.0.0, estrai solo la porta dopo i due punti
+            latitude, longitude = GeomapIP.fetch_location(parsed_log["src_ip"])
+            parsed_log["latitude"] = latitude
+            parsed_log["longitude"] = longitude
             dst_port_match = re.search(r'IP=0\.0\.0\.0:(\d+)', raw_log)
             if dst_port_match:
                 parsed_log["dst_port"] = int(dst_port_match.group(1))
