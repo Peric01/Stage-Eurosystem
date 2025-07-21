@@ -69,10 +69,11 @@ class LDAPParser(InterfaceLogParser):
             if src_ip_match:
                 parsed_log["src_ip"] = src_ip_match.group(1)
                 parsed_log["src_port"] = int(src_ip_match.group(2))
+                latitude, longitude = GeomapIP.fetch_location(parsed_log["src_ip"])
+                parsed_log["latitude"] = latitude
+                parsed_log["longitude"] = longitude
             # L'IP di destinazione è sempre 0.0.0.0, estrai solo la porta dopo i due punti
-            latitude, longitude = GeomapIP.fetch_location(parsed_log["src_ip"])
-            parsed_log["latitude"] = latitude
-            parsed_log["longitude"] = longitude
+            
             dst_port_match = re.search(r'IP=0\.0\.0\.0:(\d+)', raw_log)
             if dst_port_match:
                 parsed_log["dst_port"] = int(dst_port_match.group(1))
