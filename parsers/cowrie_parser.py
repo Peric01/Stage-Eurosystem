@@ -17,7 +17,9 @@ class CowrieParser(InterfaceLogParser):
     def parse(self, raw_log: str) -> dict[str, Any]:
         try:
             log_data = json.loads(raw_log)
+            logger.debug(f"test1")
             latitude, longitude = GeomapIP.fetch_location(log_data.get("src_ip"))
+            logger.debug(f"test2")
             return {
                 "timestamp": log_data.get("timestamp"),
                 "src_ip": log_data.get("src_ip"),   # Indirizzo IP sorgente (chi effettua la connessione)
