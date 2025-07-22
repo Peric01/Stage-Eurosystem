@@ -18,26 +18,27 @@ class CowrieParser(InterfaceLogParser):
         try:
             log_data = json.loads(raw_log)
             latitude, longitude = GeomapIP.fetch_location(log_data.get("src_ip"))
+
             return {
-                "timestamp": log_data.get("timestamp"),
-                "src_ip": log_data.get("src_ip"),   # Indirizzo IP sorgente (chi effettua la connessione)
-                "src_port": log_data.get("src_port"),
-                "latitude": latitude,
-                "longitude": longitude,
-                "dst_ip": log_data.get("dst_ip"),   # Indirizzo IP destinazione (honeypot che riceve la connessione)
-                "dst_port": log_data.get("dst_port"),
-                "event": log_data.get("eventid"),
-                "message": log_data.get("message"),
-                "username": log_data.get("username"),
-                "password": log_data.get("password"),
-                "command": log_data.get("command") or log_data.get("input"),
-                "session": log_data.get("session"),
-                "protocol": log_data.get("protocol"),
-                "ssh_version": log_data.get("version"),
-                "hassh": log_data.get("hassh"),
-                "ttylog": log_data.get("ttylog"),
-                "duration": log_data.get("duration"),
-                "sensor": log_data.get("sensor"),
+                "timestamp": str(log_data.get("timestamp")),
+                "src_ip": str(log_data.get("src_ip")),
+                "src_port": str(log_data.get("src_port")),
+                "latitude": str(latitude),
+                "longitude": str(longitude),
+                "dst_ip": str(log_data.get("dst_ip")),
+                "dst_port": str(log_data.get("dst_port")),
+                "event": str(log_data.get("eventid")),
+                "message": str(log_data.get("message")),
+                "username": str(log_data.get("username")),
+                "password": str(log_data.get("password")),
+                "command": str(log_data.get("command") or log_data.get("input")),
+                "session": str(log_data.get("session")),
+                "protocol": str(log_data.get("protocol")),
+                "ssh_version": str(log_data.get("version")),
+                "hassh": str(log_data.get("hassh")),
+                "ttylog": str(log_data.get("ttylog")),
+                "duration": str(log_data.get("duration")),
+                "sensor": str(log_data.get("sensor")),
             }
         except json.JSONDecodeError:
             logger.error(f"Failed to parse log: {raw_log}")
