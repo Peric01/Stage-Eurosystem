@@ -72,9 +72,9 @@ class DionaeaParser(InterfaceLogParser):
             )
             if conn_match:
                 parsed_log["src_ip"] = conn_match.group(1)
-                parsed_log["src_port"] = str(conn_match.group(2))
+                parsed_log["src_port"] = int(conn_match.group(2))
                 parsed_log["dst_ip"] = conn_match.group(3)
-                parsed_log["dst_port"] = str(conn_match.group(4))
+                parsed_log["dst_port"] = int(conn_match.group(4))
                 latitude, longitude = GeomapIP.fetch_location(parsed_log["src_ip"])
                 parsed_log["latitude"] = latitude
                 parsed_log["longitude"] = longitude
