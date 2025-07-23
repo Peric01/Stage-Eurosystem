@@ -7,11 +7,15 @@ import threading
 import time
 from core.service_manager import ServiceManager
 from config.environment_config import ask_log_level
-
+import sys
 
 def main():
-    level = ask_log_level()
+    # Prendi il primo argomento CLI se esiste
+    cli_choice = sys.argv[1] if len(sys.argv) > 1 else None
+
+    level = ask_log_level(cli_choice)
     LogManager.get_instance().get_logger().setLevel(level)
+    
     service_manager = ServiceManager()
 
     if not service_manager.initialize_services():
