@@ -7,7 +7,7 @@ import threading
 from core.log_collector import LogCollector
 from core.docker_log_collector import DockerLogCollector
 from parsers.parser_factory import get_parser
-from publishers.mqtt_publisher import MqttPublisher
+from publishers.publisher_factory import get_publisher
 
 class ServiceManager:
     """
@@ -40,7 +40,7 @@ class ServiceManager:
                 publisher = None
                 for attempt in range(max_retries):
                     try:
-                        publisher = MqttPublisher("46.62.130.53", topic)
+                        publisher = get_publisher("mqtt", "46.62.130.53", topic)  # usa la factory qui
                         break
                     except Exception as e:
                         self.logger.warning(f"MQTT connection failed for {parser_name} (attempt {attempt + 1}): {e}")
@@ -51,7 +51,6 @@ class ServiceManager:
                     return False
 
                 publishers[parser_name] = publisher
-
             for name, (parser_name, path_or_container, is_docker) in sources.items():
                 try:
                     parser = get_parser(parser_name)
