@@ -27,7 +27,7 @@ class MqttPublisher(InterfaceDataPublisher):
         try:
             # Enable SSL/TLS and load CA certificate
             self.client.tls_set(
-                ca_certs="/etc/mosquitto/certs/ca.crt",
+                ca_certs="/opt/honeypot/certs/ca.crt",
                 cert_reqs=ssl.CERT_REQUIRED,
                 tls_version=ssl.PROTOCOL_TLSv1_2
             )
