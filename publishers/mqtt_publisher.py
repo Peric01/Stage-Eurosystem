@@ -2,19 +2,20 @@ from publishers.base_publisher import InterfaceDataPublisher
 import paho.mqtt.client as mqtt
 import json
 from logger.log_manager import LogManager
+import ssl  # Needed for TLS
 
 class MqttPublisher(InterfaceDataPublisher):
     '''
     Publisher che invia log strutturati a un broker MQTT.
     '''
 
-    def __init__(self, broker_address: str, topic: str, port: int = 1883):
+    def __init__(self, broker_address: str, topic: str, port: int = 8883):
         '''
         Inizializza il publisher MQTT.
 
         :param broker_address: Indirizzo del broker MQTT.
         :param topic: Topic MQTT su cui pubblicare i messaggi.
-        :param port: Porta del broker MQTT (default 1883).
+        :param port: Porta del broker MQTT (default 8883 con SSL).
         '''
 
         self.broker_address = broker_address
@@ -22,17 +23,24 @@ class MqttPublisher(InterfaceDataPublisher):
         self.port = port
         self.client = mqtt.Client()
         self.logger = LogManager.get_instance().get_logger()
-        
 
         try:
-            self.logger.debug(f"Connecting to MQTT broker at {self.broker_address}:{self.port} on topic '{self.topic}'")
+            # Enable SSL/TLS and load CA certificate
+            self.client.tls_set(
+                ca_certs="/etc/mosquitto/certs/ca.crt",
+                cert_reqs=ssl.CERT_REQUIRED,
+                tls_version=ssl.PROTOCOL_TLSv1_2
+            )
+
+
+            self.logger.debug(f"Connecting to MQTT broker at {self.broker_address}:{self.port} with TLS on topic '{self.topic}'")
             self.client.connect(self.broker_address, self.port)
-            self.logger.debug("MQTT connection established, starting loop")
+            self.logger.debug("MQTT TLS connection established, starting loop")
             self.client.loop_start()
             self.logger.debug("MQTT loop started")
-            self.logger.info(f"MQTT connected to {self.broker_address}:{self.port} on topic '{self.topic}'")
+            self.logger.info(f"MQTT (TLS) connected to {self.broker_address}:{self.port} on topic '{self.topic}'")
         except Exception as e:
-            self.logger.error(f"Failed to connect to MQTT broker: {e}")
+            self.logger.error(f"Failed to connect to MQTT broker over TLS: {e}")
 
     def publish(self, log: dict):
         '''
