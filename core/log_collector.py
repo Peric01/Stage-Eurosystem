@@ -29,8 +29,8 @@ class LogCollector:
             self.logger.error(f"Could not open log file: {e}")
             return
 
-        threading.Thread(target=self._collect_loop, daemon=True).start()
         self.logger.info("LogCollector started.")
+        self._collect_loop()
 
     def stop(self):
         """Stops the log collection process."""

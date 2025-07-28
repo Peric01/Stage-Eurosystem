@@ -78,8 +78,8 @@ class ServiceManager:
         try:
             self.run_event.set()
 
-            self.thread_manager.run_thread(start_connection_listener, args=(self.run_event,))
-            self.thread_manager.run_thread(start_container_handler, args=(self.run_event,))
+            #self.thread_manager.run_thread(start_connection_listener, args=(self.run_event,))
+            #self.thread_manager.run_thread(start_container_handler, args=(self.run_event,))
 
             log_collectors = self.services.get('log_collectors', [])
             for name, collector in log_collectors:
