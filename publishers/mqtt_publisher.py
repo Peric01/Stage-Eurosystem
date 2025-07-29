@@ -31,7 +31,7 @@ class MqttPublisher(InterfaceDataPublisher):
                 cert_reqs=ssl.CERT_REQUIRED,
                 tls_version=ssl.PROTOCOL_TLSv1_2
             )
-
+            self.client.tls_insecure_set(True)
 
             self.logger.debug(f"Connecting to MQTT broker at {self.broker_address}:{self.port} with TLS on topic '{self.topic}'")
             self.client.connect(self.broker_address, self.port)
