@@ -14,13 +14,13 @@ class ServiceManager:
     Classe responsabile dell'inizializzazione, avvio e arresto
     dei componenti principali del sistema di raccolta e pubblicazione dei log.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = LogManager.get_instance().get_logger()
         self.run_event = threading.Event()
         self.thread_manager = ThreadManager()
         self.services = {}
 
-    def initialize_services(self):
+    def initialize_services(self) -> bool:
         try:
             max_retries = 3
             retry_delay = 5
@@ -74,7 +74,7 @@ class ServiceManager:
             self.logger.exception("Service initialization failed")
             return False
 
-    def start_services(self):
+    def start_services(self) -> bool:
         try:
             self.run_event.set()
 
@@ -93,7 +93,7 @@ class ServiceManager:
             self.logger.exception("Failed to start services")
             return False
 
-    def stop_services(self):
+    def stop_services(self) -> None:
         self.logger.info("Shutting down services...")
         self.run_event.clear()
 

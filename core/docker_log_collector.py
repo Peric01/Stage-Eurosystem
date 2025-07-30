@@ -10,7 +10,7 @@ class DockerLogCollector:
     Colleziona i log direttamente dal container Docker (stdout/stderr).
     """
 
-    def __init__(self, logger, container_name: str, parser: InterfaceLogParser, publisher: InterfaceDataPublisher):
+    def __init__(self, logger, container_name: str, parser: InterfaceLogParser, publisher: InterfaceDataPublisher) -> None:
         self.logger = logger
         self.container_name = container_name
         self.parser = parser
@@ -18,16 +18,16 @@ class DockerLogCollector:
         self._run_event = threading.Event()
         self.client = docker.from_env()
 
-    def start(self):
+    def start(self) -> None:
         self._run_event.set()
         threading.Thread(target=self._collect_loop, daemon=True).start()
         self.logger.info(f"DockerLogCollector for '{self.container_name}' started.")
 
-    def stop(self):
+    def stop(self) -> None:
         self._run_event.clear()
         self.logger.info(f"DockerLogCollector for '{self.container_name}' stopping...")
 
-    def _collect_loop(self):
+    def _collect_loop(self) -> None:
         try:
             container = self.client.containers.get(self.container_name)
             start_time = int(datetime.now().timestamp())

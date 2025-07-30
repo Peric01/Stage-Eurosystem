@@ -11,7 +11,7 @@ class LogCollector:
     Reads only newly appended lines (like tail -f).
     """
 
-    def __init__(self, logger, parser: InterfaceLogParser, publisher: InterfaceDataPublisher, log_path: str):
+    def __init__(self, logger, parser: InterfaceLogParser, publisher: InterfaceDataPublisher, log_path: str) -> None:
         self.logger = logger
         self.parser = parser
         self.publisher = publisher
@@ -19,7 +19,7 @@ class LogCollector:
         self._run_event = threading.Event()
         self._file = None  # Per tenere traccia del file aperto
 
-    def start(self):
+    def start(self) -> None:
         """Starts the log collection process in a background thread."""
         self._run_event.set()
         try:
@@ -32,7 +32,7 @@ class LogCollector:
         self.logger.info("LogCollector started.")
         self._collect_loop()
 
-    def stop(self):
+    def stop(self) -> None:
         """Stops the log collection process."""
         self._run_event.clear()
         if self._file:
@@ -42,7 +42,7 @@ class LogCollector:
                 self.logger.warning(f"Error closing file: {e}")
         self.logger.info("LogCollector stopping...")
 
-    def _collect_loop(self):
+    def _collect_loop(self) -> None:
         """Main collection loop that runs in a background thread."""
         try:
             while self._run_event.is_set():
@@ -51,7 +51,7 @@ class LogCollector:
         except Exception as e:
             self.logger.exception("Unexpected error in log collection loop")
 
-    def collect_logs(self):
+    def collect_logs(self) -> None:
         """Reads, parses, and dispatches newly appended log lines."""
         raw_logs = self._read_from_source()
 

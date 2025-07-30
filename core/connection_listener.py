@@ -3,7 +3,7 @@ import socket
 import time
 from logger.log_manager import LogManager
 
-def handle_connection(client_socket, address, port, logger):
+def handle_connection(client_socket, address, port, logger) -> None:
     """
     Gestisce una singola connessione.
     """
@@ -16,7 +16,7 @@ def handle_connection(client_socket, address, port, logger):
         client_socket.close()
         logger.debug(f"Connessione con {address} chiusa.")
 
-def listen_on_port(port, run_event: threading.Event, logger):
+def listen_on_port(port, run_event: threading.Event, logger) -> None:
     """
     Apre una socket in ascolto sulla porta specificata.
     """
@@ -43,7 +43,7 @@ def listen_on_port(port, run_event: threading.Event, logger):
 
         logger.info(f"Listener on port {port} stopped")
 
-def start_connection_listener(run_event: threading.Event):
+def start_connection_listener(run_event: threading.Event) -> None:
     """
     Avvia listener su più porte in thread separati.
     """

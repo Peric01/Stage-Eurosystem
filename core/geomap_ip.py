@@ -6,7 +6,7 @@ logger = LogManager.get_instance().get_logger()
 
 class GeomapIP:
     @staticmethod
-    def fetch_location(IP: str):
+    def fetch_location(IP: str) -> tuple[float, float] | None:
         try:
             if ipaddress.ip_address(IP).is_private:
                 logger.info(f"Skipping geolocation for private IP: {IP}")

@@ -31,7 +31,7 @@ class CustomFormatter(logging.Formatter):
         logging.CRITICAL: bold_magenta + log_timestamp + " | %(levelname)s | " + message_location_log + "\n" + magenta + reset,
     }
 
-    def format(self, record):
+    def format(self, record) -> str:
         '''
         Override del metodo format per applicare il formato personalizzato
         basato sul livello del record di log.

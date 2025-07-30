@@ -1,4 +1,4 @@
-def ask_log_level(cli_choice=None):
+def ask_log_level(cli_choice=None) -> str:
     level_map = {
         "1": ("DEBUG", 10),
         "2": ("INFO", 20),

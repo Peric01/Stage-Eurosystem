@@ -12,7 +12,7 @@ class LogManager:
     '''
     _instance = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger("LogSystem")
         self.logger.setLevel(logging.DEBUG)
         ch = logging.StreamHandler()
@@ -20,7 +20,7 @@ class LogManager:
         self.logger.addHandler(ch)
 
     @classmethod
-    def get_instance(cls):
+    def get_instance(cls) -> 'LogManager':
         '''
         Restituisce l'istanza singleton di LogManager
 
@@ -30,7 +30,7 @@ class LogManager:
             cls._instance = LogManager()
         return cls._instance
     
-    def get_logger(self):
+    def get_logger(self) -> logging.Logger:
         '''
         Restituisce il logger configurato per scrivere i messaggi di log
         '''

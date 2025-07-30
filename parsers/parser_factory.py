@@ -2,6 +2,7 @@ from .cowrie_parser import CowrieParser
 from .dionaea_parser import DionaeaParser
 from .LDAP_parser import LDAPParser
 from .apache_parser import ApacheParser
+from .base_parser import InterfaceLogParser
 
 '''
 Factory per la creazione di parser in base al tipo richiesto.
@@ -11,7 +12,7 @@ senza dover scrivere il codice di una classe specifica nel codice di alto livell
 
 '''
 
-def get_parser(name: str):
+def get_parser(name: str) -> InterfaceLogParser:
     if name.lower() == "cowrie":
         return CowrieParser()
     elif name.lower() == "dionaea":

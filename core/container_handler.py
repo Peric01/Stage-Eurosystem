@@ -3,7 +3,7 @@ import threading
 import time
 from logger.log_manager import LogManager
 
-def start_container_handler(run_event: threading.Event):
+def start_container_handler(run_event: threading.Event) -> None:
     """
     Manages the containers used to fake vulnerable services in restricted environments.
    

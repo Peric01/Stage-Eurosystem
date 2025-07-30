@@ -9,7 +9,7 @@ class MqttPublisher(InterfaceDataPublisher):
     Publisher che invia log strutturati a un broker MQTT.
     '''
 
-    def __init__(self, broker_address: str, topic: str, port: int = 8883):
+    def __init__(self, broker_address: str, topic: str, port: int = 8883) -> None:
         '''
         Inizializza il publisher MQTT.
 
@@ -41,7 +41,7 @@ class MqttPublisher(InterfaceDataPublisher):
         except Exception as e:
             self.logger.error(f"Failed to connect to MQTT broker over TLS: {e}")
 
-    def publish(self, log: dict):
+    def publish(self, log: dict) -> None:
         '''
         Pubblica un dizionario JSON come stringa sul topic MQTT specificato.
         '''
