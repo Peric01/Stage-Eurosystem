@@ -9,4 +9,4 @@ class InterfaceDataPublisher(ABC):
     @abstractmethod
     def publish(self, log: Dict[str, Any]) -> None:
         '''Pubblica un log strutturato verso un canale specifico.'''
-        pass
+        pass # pragma: no cover

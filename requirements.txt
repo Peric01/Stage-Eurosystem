@@ -2,3 +2,6 @@ paho-mqtt
 docker
 geocoder
 ipaddress
+pytest
+pytest-mock
+pytest-cov

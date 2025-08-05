@@ -47,7 +47,7 @@ class LogCollector:
         try:
             while self._run_event.is_set():
                 self.collect_logs()
-                time.sleep(2)  # intervallo di polling
+                time.sleep(2)  # pragma: no cover
         except Exception as e:
             self.logger.exception("Unexpected error in log collection loop")
 

@@ -25,7 +25,6 @@ class MqttPublisher(InterfaceDataPublisher):
         self.logger = LogManager.get_instance().get_logger()
 
         try:
-            # Enable SSL/TLS and load CA certificate
             self.client.tls_set(
                 ca_certs="/opt/honeypot/certs/ca.crt",
                 cert_reqs=ssl.CERT_REQUIRED,

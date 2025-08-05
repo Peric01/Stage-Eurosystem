@@ -1,0 +1,4 @@
+[run]
+omit =
+    core/connection_listener.py
+    core/container_handler.py

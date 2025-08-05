@@ -24,4 +24,4 @@ share/python-wheels/
 MANIFEST
 mqtt.conf
 ssl/
- 
+.coverage
