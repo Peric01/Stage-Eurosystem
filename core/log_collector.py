@@ -7,6 +7,7 @@ from parsers.base_parser import InterfaceLogParser
 from publishers.base_publisher import InterfaceDataPublisher
 from osint.osint_factory import OSINTServiceFactory
 from dotenv import load_dotenv
+import ipaddress
 
 # Carica le variabili dal file .env
 load_dotenv()
@@ -86,6 +87,9 @@ class LogCollector:
 
                 # Assicuro che sia stringa
                 ip_str = str(ip)
+                if not ipaddress.ip_address(ip_str).is_global:
+                    self.logger.debug(f"IP {ip_str} non è un IP pubblico, saltando OSINT.")
+                    continue
 
                 for name, service in self.osint_services.items():
                     try:
