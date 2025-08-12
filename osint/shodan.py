@@ -1,7 +1,7 @@
 from osint.base_osint import OSINTService
 import requests
 import logging
-from urllib.parse import urlparse, urlunparse
+import re
 
 logger = logging.getLogger("LogSystem")
 
@@ -13,8 +13,9 @@ class Shodan(OSINTService):
             response.raise_for_status()
             return response.json()
         except Exception as e:
-            # Maschera la chiave API rimuovendo la query string dal URL
-            parsed_url = urlparse(url)
-            safe_url = urlunparse(parsed_url._replace(query=""))
-            logger.error(f"Shodan error for {ip}: for url: {safe_url}")
+            # Converte l'eccezione in stringa
+            error_str = str(e)
+            # Rimuove la parte key=QUALCOSA (anche se è in mezzo a un URL)
+            clean_error_str = re.sub(r'key=[^&\s]+', 'key=****', error_str)
+            logger.error(f"Shodan error for {ip}: {clean_error_str}")
             return {}
