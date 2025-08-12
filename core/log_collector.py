@@ -99,7 +99,7 @@ class LogCollector:
                 #         self.logger.info(f"{name} → {result}")
                 #     except Exception as e:
                 #         self.logger.error(f"Errore con servizio {name}: {e}")
-                osintcorrelator = OSINTCorrelator(api_keys[1], api_keys[2], api_keys[3])
+                osintcorrelator = OSINTCorrelator(api_keys["abuseipdb"], api_keys["shodan"], api_keys["virustotal"])
                 result = osintcorrelator.query_virustotal(ip_str)
                 if result:
                     self.logger.info(f"OSINT results for {ip_str}: {result}")
