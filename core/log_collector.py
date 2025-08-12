@@ -4,6 +4,14 @@ from typing import List
 from logger.log_manager import LogManager
 from parsers.base_parser import InterfaceLogParser
 from publishers.base_publisher import InterfaceDataPublisher
+from osint.osint_factory import OSINTServiceFactory
+
+api_keys = {
+                "abuseipdb": "API_KEY_ABUSEIPDB",
+                "shodan": "API_KEY_SHODAN",
+                "virustotal": "API_KEY_VIRUSTOTAL"
+            }
+
 
 class LogCollector:
     """
@@ -11,13 +19,19 @@ class LogCollector:
     Reads only newly appended lines (like tail -f).
     """
 
-    def __init__(self, logger, parser: InterfaceLogParser, publisher: InterfaceDataPublisher, log_path: str) -> None:
+    def __init__(self, logger, parser: InterfaceLogParser, publisher: InterfaceDataPublisher, log_path: str, osint_names: List[str]) -> None:
         self.logger = logger
         self.parser = parser
         self.publisher = publisher
         self.log_path = log_path
         self._run_event = threading.Event()
         self._file = None  # Per tenere traccia del file aperto
+        self.osint_services = {
+            name: OSINTServiceFactory.get_service(name, api_keys[name])
+            for name in osint_names if name in api_keys
+        }
+    
+    
 
     def start(self) -> None:
         """Starts the log collection process in a background thread."""
@@ -60,6 +74,20 @@ class LogCollector:
             try:
                 parsed = self.parser.parse(raw_log)
                 self.logger.debug(f"Parsed log: {parsed}")
+                ip = parsed.get("src_ip")
+                if not ip:
+                    self.logger.debug("Nessun src_ip trovato nel log parsato.")
+                    return
+
+                # Assicuro che sia stringa
+                ip_str = str(ip)
+
+                for name, service in self.osint_services.items():
+                    try:
+                        result = service.query(ip_str)
+                        self.logger.info(f"{name} → {result}")
+                    except Exception as e:
+                        self.logger.error(f"Errore con servizio {name}: {e}")
                 if parsed:
                     self.publisher.publish(parsed)
                     self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")

@@ -20,7 +20,6 @@ class ServiceManager:
         self.run_event = threading.Event()
         self.thread_manager = ThreadManager()
         self.services = {
-            'osint_services': {},
             'publisher': None,
             'log_collectors': []
         }
@@ -32,19 +31,6 @@ class ServiceManager:
             publisher = None
             log_collectors = []
             publishers = {}
-            
-            api_keys = {
-                "abuseipdb": "API_KEY_ABUSEIPDB",
-                "shodan": "API_KEY_SHODAN",
-                "virustotal": "API_KEY_VIRUSTOTAL"
-            }
-            for service_name, api_key in api_keys.items():
-                service = OSINTServiceFactory.get_service(service_name, api_key)
-                if service:
-                    self.services['osint_services'][service_name] = service
-                    self.logger.info(f"OSINT service initialized: {service_name}")
-                else:
-                    self.logger.warning(f"OSINT service not initialized: {service_name}")
             # --------------------------------------------------
 
             # Mappa: sorgente -> (parser_name, log_path)
@@ -78,10 +64,11 @@ class ServiceManager:
                 try:
                     parser = get_parser(parser_name)
                     publisher = publishers[parser_name]
+                    osint_names = {"abuseipdb", "shodan", "virustotal"}
                     if is_docker:
                         collector = DockerLogCollector(self.logger, path_or_container, parser, publisher)
                     else:
-                        collector = LogCollector(self.logger, parser, publisher, path_or_container)
+                        collector = LogCollector(self.logger, parser, publisher, path_or_container, osint_names)
                     log_collectors.append((name, collector))
                     self.logger.info(f"Initialized log collector for {name}")
                 except Exception as e:
