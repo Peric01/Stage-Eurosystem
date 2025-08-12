@@ -8,6 +8,7 @@ from core.log_collector import LogCollector
 from core.docker_log_collector import DockerLogCollector
 from parsers.parser_factory import get_parser
 from publishers.publisher_factory import get_publisher
+from osint.osint_factory import OSINTServiceFactory  # aggiunto import OSINT
 
 class ServiceManager:
     """
@@ -18,7 +19,11 @@ class ServiceManager:
         self.logger = LogManager.get_instance().get_logger()
         self.run_event = threading.Event()
         self.thread_manager = ThreadManager()
-        self.services = {}
+        self.services = {
+            'osint_services': {},
+            'publisher': None,
+            'log_collectors': []
+        }
 
     def initialize_services(self) -> bool:
         try:
@@ -27,14 +32,30 @@ class ServiceManager:
             publisher = None
             log_collectors = []
             publishers = {}
+            
+            api_keys = {
+                "abuseipdb": "API_KEY_ABUSEIPDB",
+                "shodan": "API_KEY_SHODAN",
+                "virustotal": "API_KEY_VIRUSTOTAL"
+            }
+            for service_name, api_key in api_keys.items():
+                service = OSINTServiceFactory.get_service(service_name, api_key)
+                if service:
+                    self.services['osint_services'][service_name] = service
+                    self.logger.info(f"OSINT service initialized: {service_name}")
+                else:
+                    self.logger.warning(f"OSINT service not initialized: {service_name}")
+            # --------------------------------------------------
+
             # Mappa: sorgente -> (parser_name, log_path)
             sources = {
-                            'cowrie':   ("cowrie",   "/opt/honeypot/logs/cowrie/cowrie.json", False),
-                            'apache':   ("apache",   "/opt/honeypot/logs/apache/access.log", False),
-                            'openldap': ("openldap", "/opt/honeypot/logs/openldap/openldap.log", False),
-                            'dionaea':  ("dionaea", "/opt/honeypot/logs/dionaea/dionaea.log" , False)
-                        }
+                'cowrie':   ("cowrie",   "/opt/honeypot/logs/cowrie/cowrie.json", False),
+                'apache':   ("apache",   "/opt/honeypot/logs/apache/access.log", False),
+                'openldap': ("openldap", "/opt/honeypot/logs/openldap/openldap.log", False),
+                'dionaea':  ("dionaea",  "/opt/honeypot/logs/dionaea/dionaea.log" , False)
+            }
 
+            # Connessione MQTT per ogni sorgente
             for name, (parser_name, path_or_container, is_docker) in sources.items():
                 topic = f"honeypot/logs/{parser_name}"
                 publisher = None
@@ -51,6 +72,8 @@ class ServiceManager:
                     return False
 
                 publishers[parser_name] = publisher
+
+            # Inizializza log collectors
             for name, (parser_name, path_or_container, is_docker) in sources.items():
                 try:
                     parser = get_parser(parser_name)
@@ -64,10 +87,8 @@ class ServiceManager:
                 except Exception as e:
                     self.logger.error(f"Failed to initialize collector for {name}: {e}")
 
-            self.services = {
-                'publisher': publisher,
-                'log_collectors': log_collectors
-            }
+            self.services['publisher'] = publisher
+            self.services['log_collectors'] = log_collectors
             return True
 
         except Exception:

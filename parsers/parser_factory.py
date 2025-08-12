@@ -3,6 +3,7 @@ from .dionaea_parser import DionaeaParser
 from .LDAP_parser import LDAPParser
 from .apache_parser import ApacheParser
 from .base_parser import InterfaceLogParser
+from .osint_parser import OSINTParser
 
 '''
 Factory per la creazione di parser in base al tipo richiesto.
@@ -21,5 +22,7 @@ def get_parser(name: str) -> InterfaceLogParser:
         return LDAPParser()
     elif name.lower() == "apache":
         return ApacheParser()
+    elif name.lower() == "osint":
+        return OSINTParser()
     else:
         raise ValueError(f"No parser found for {name}")

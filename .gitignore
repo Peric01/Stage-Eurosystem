@@ -25,3 +25,4 @@ MANIFEST
 mqtt.conf
 ssl/
 .coverage
+.env
