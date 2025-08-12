@@ -1,16 +1,21 @@
 import threading
 import time
+import os
 from typing import List
 from logger.log_manager import LogManager
 from parsers.base_parser import InterfaceLogParser
 from publishers.base_publisher import InterfaceDataPublisher
 from osint.osint_factory import OSINTServiceFactory
+from dotenv import load_dotenv
+
+# Carica le variabili dal file .env
+load_dotenv()
 
 api_keys = {
-                "abuseipdb": "API_KEY_ABUSEIPDB",
-                "shodan": "API_KEY_SHODAN",
-                "virustotal": "API_KEY_VIRUSTOTAL"
-            }
+    "abuseipdb": os.getenv("ABUSEIPDB_KEY"),
+    "shodan": os.getenv("SHODAN_KEY"),
+    "virustotal": os.getenv("VT_KEY")
+}
 
 
 class LogCollector:
