@@ -1,6 +1,7 @@
 from osint.base_osint import OSINTService
 import requests
 import logging
+from urllib.parse import urlparse, urlunparse
 
 logger = logging.getLogger("LogSystem")
 
@@ -12,5 +13,8 @@ class Shodan(OSINTService):
             response.raise_for_status()
             return response.json()
         except Exception as e:
-            logger.error(f"Shodan error for {ip}: {e}")
+            # Maschera la chiave API rimuovendo la query string dal URL
+            parsed_url = urlparse(url)
+            safe_url = urlunparse(parsed_url._replace(query=""))
+            logger.error(f"Shodan error for {ip}: {e} for url: {safe_url}")
             return {}
