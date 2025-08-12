@@ -12,7 +12,7 @@ virustotal_key = os.getenv("VIRUSTOTAL_KEY")
 correlator = OSINTCorrelator(abuseipdb_key, shodan_key, virustotal_key)
 
 # IP da testare (puoi usare IP noti come Google DNS o IP compromessi trovati nei log)
-ip = "8.8.8.8"
+ip = "93.41.255.167"
 
 print("\n===== TEST OSINT =====")
 print(f"Testing IP: {ip}\n")
