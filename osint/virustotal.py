@@ -8,7 +8,7 @@ class VirusTotal(OSINTService):
     def query(self, ip: str) -> dict:
         url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
         headers = {
-            "x-apikey": self.virustotal_key
+            "x-apikey": self.api_key
         }
         try:
             response = requests.get(url, headers=headers)

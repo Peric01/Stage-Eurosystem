@@ -8,7 +8,7 @@ class AbuseIPDB(OSINTService):
     def query(self, ip: str) -> dict:
         url = "https://api.abuseipdb.com/api/v2/check"
         headers = {
-            "Key": self.abuseipdb_key,
+            "Key": self.api_key,
             "Accept": "application/json"
         }
         params = {
