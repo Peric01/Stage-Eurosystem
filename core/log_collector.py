@@ -9,6 +9,8 @@ from osint.osint_factory import OSINTServiceFactory
 from dotenv import load_dotenv
 import ipaddress
 
+from core.osint_correlator import OSINTCorrelator  # Assuming this is the correct import path
+
 # Carica le variabili dal file .env
 load_dotenv()
 
@@ -91,12 +93,16 @@ class LogCollector:
                     self.logger.debug(f"IP {ip_str} non è un IP pubblico, saltando OSINT.")
                     continue
 
-                for name, service in self.osint_services.items():
-                    try:
-                        result = service.query(ip_str)
-                        self.logger.info(f"{name} → {result}")
-                    except Exception as e:
-                        self.logger.error(f"Errore con servizio {name}: {e}")
+                # for name, service in self.osint_services.items():
+                #     try:
+                #         result = service.query(ip_str)
+                #         self.logger.info(f"{name} → {result}")
+                #     except Exception as e:
+                #         self.logger.error(f"Errore con servizio {name}: {e}")
+                osintcorrelator = OSINTCorrelator(api_keys[1], api_keys[2], api_keys[3])
+                result = osintcorrelator.query_virustotal(ip_str)
+                if result:
+                    self.logger.info(f"OSINT results for {ip_str}: {result}")
                 if parsed:
                     self.publisher.publish(parsed)
                     self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
