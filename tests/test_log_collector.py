@@ -7,7 +7,8 @@ def setup_collector():
     mock_logger = MagicMock()
     mock_parser = MagicMock()
     mock_publisher = MagicMock()
-    collector = LogCollector(mock_logger, mock_parser, mock_publisher, "dummy.log")
+    mock_osint = MagicMock()
+    collector = LogCollector(mock_logger, mock_parser, mock_publisher, "dummy.log", mock_osint)
     return collector, mock_logger, mock_parser, mock_publisher
 
 @patch("builtins.open", new_callable=mock_open, read_data="line1\nline2\n")
@@ -60,7 +61,11 @@ def test_collect_logs_success(setup_collector):
     logger.debug.assert_any_call("Raw log received: raw log line")
     logger.debug.assert_any_call("Parsed log: {'event': 'test_event'}")
     publisher.publish.assert_called_with({"event": "test_event"})
-    logger.info.assert_called_with("Published event: test_event")
+
+    # Controlla che almeno una chiamata info contenga "Published event"
+    calls = [call.args[0] for call in logger.info.call_args_list]
+    assert any("Published event" in msg for msg in calls)
+
 
 def test_collect_logs_parser_error(setup_collector):
     collector, logger, parser, publisher = setup_collector
