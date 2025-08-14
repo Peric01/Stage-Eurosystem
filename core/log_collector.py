@@ -15,7 +15,7 @@ load_dotenv()
 
 api_keys = {
     "abuseipdb": os.getenv("ABUSEIPDB_KEY"),
-    "shodan": os.getenv("SHODAN_KEY"),
+    #"shodan": os.getenv("SHODAN_KEY"),
     "virustotal": os.getenv("VIRUSTOTAL_KEY")
 }
 
