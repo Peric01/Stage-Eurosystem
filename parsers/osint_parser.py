@@ -8,7 +8,7 @@ logger = logging.getLogger("LogSystem")
 class OSINTParser(InterfaceLogParser):
     '''
     Parser for OSINT data in JSON format.
-    Extracts specific fields from abuseipdb, shodan, and virustotal responses.
+    Returns all fields from the OSINT query, plus a cleaned summary of key services.
     '''
 
     def parse(self, raw_log: Any) -> dict[str, Any]:
@@ -24,34 +24,37 @@ class OSINTParser(InterfaceLogParser):
 
         logger.debug(f"OSINTParser received data: {data}")
 
-        result = {}
+        # Copia completa (così pubblichi tutto ciò che è arrivato)
+        result = dict(data)
 
-        # --- abuseipdb ---
+        # Estratto pulito dei campi chiave
+        summary = {}
+
         abuseipdb_data = data.get("abuseipdb") or data.get("AbuseIPDB") or {}
         if abuseipdb_data:
-            result["abuseipdb"] = {
+            summary["abuseipdb"] = {
                 "abuseConfidenceScore": abuseipdb_data.get("abuseConfidenceScore"),
                 "totalReports": abuseipdb_data.get("totalReports"),
             }
 
-        # --- shodan ---
         shodan_data = data.get("shodan") or data.get("Shodan") or {}
         if shodan_data:
-            result["shodan"] = {
+            summary["shodan"] = {
                 "vulns": shodan_data.get("vulns", []),
                 "port": shodan_data.get("port")
             }
 
-        # --- virustotal ---
         virustotal_data = data.get("virustotal") or data.get("VirusTotal") or {}
         if virustotal_data:
-            result["virustotal"] = {
+            summary["virustotal"] = {
                 "last_analysis_stats": virustotal_data.get("last_analysis_stats", {}),
                 "tags": virustotal_data.get("tags", [])
             }
 
-        # Se non abbiamo trovato niente, logghiamo per debug
-        if not result:
-            logger.warning(f"OSINTParser: Nessun dato estratto da {data}")
+        # Se abbiamo estratto qualcosa, aggiungilo sotto una chiave "summary"
+        if summary:
+            result["summary"] = summary
+        else:
+            logger.warning("OSINTParser: Nessun dato estratto per le chiavi note.")
 
         return result
