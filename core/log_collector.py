@@ -15,7 +15,7 @@ load_dotenv()
 
 api_keys = {
     "abuseipdb": os.getenv("ABUSEIPDB_KEY"),
-    #"shodan": os.getenv("SHODAN_KEY"),
+    "shodan": os.getenv("SHODAN_KEY"),
     "virustotal": os.getenv("VIRUSTOTAL_KEY")
 }
 
@@ -100,6 +100,7 @@ class LogCollector:
                 parsed_osint_result = osint_parser.parse(result)
                 if parsed_osint_result:
                      self.publisher.publish(parsed_osint_result)
+                     self.logger.info(f"Published OSINT result for {ip_str}: {parsed_osint_result}")
                 if parsed:
                     self.publisher.publish(parsed)
                     self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
