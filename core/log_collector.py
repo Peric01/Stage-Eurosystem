@@ -98,6 +98,7 @@ class LogCollector:
                     except Exception as e:
                         self.logger.error(f"Errore con servizio {name}: {e}")
                 parsed_osint_result = osint_parser.parse(result)
+                self.logger.debug(f"OSINT result for {ip_str}: {parsed_osint_result}")
                 if parsed_osint_result:
                      self.publisher.publish(parsed_osint_result)
                      self.logger.info(f"Published OSINT result for {ip_str}: {parsed_osint_result}")
