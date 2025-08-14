@@ -95,13 +95,14 @@ class LogCollector:
                     try:
                         result = service.query(ip_str)
                         #self.logger.info(f"{name} → {result}")
+                        parsed_osint_result = osint_parser.parse(result)
+                        self.logger.debug(f"OSINT result for {ip_str}: {parsed_osint_result}")
+                        if parsed_osint_result:
+                            self.publisher.publish(parsed_osint_result)
+                            self.logger.info(f"Published OSINT result for {ip_str}: {parsed_osint_result}")
                     except Exception as e:
                         self.logger.error(f"Errore con servizio {name}: {e}")
-                parsed_osint_result = osint_parser.parse(result)
-                self.logger.debug(f"OSINT result for {ip_str}: {parsed_osint_result}")
-                if parsed_osint_result:
-                     self.publisher.publish(parsed_osint_result)
-                     self.logger.info(f"Published OSINT result for {ip_str}: {parsed_osint_result}")
+                
                 if parsed:
                     self.publisher.publish(parsed)
                     self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
