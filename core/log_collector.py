@@ -91,7 +91,7 @@ class LogCollector:
                 if not ipaddress.ip_address(ip_str).is_global:
                     self.logger.debug(f"IP {ip_str} non è un IP pubblico, saltando OSINT.")
                     continue
-                osint_parser = self.parser.get_parser("osint")
+                osint_parser = get_parser("osint")
                 for name, service in self.osint_services.items():
                     try:
                         result = service.query(ip_str)
