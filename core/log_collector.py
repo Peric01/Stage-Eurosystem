@@ -95,7 +95,7 @@ class LogCollector:
                 for name, service in self.osint_services.items():
                     try:
                         result = service.query(ip_str)
-                        self.logger.info(f"{name} → {result}")
+                        #self.logger.info(f"{name} → {result}")
                     except Exception as e:
                         self.logger.error(f"Errore con servizio {name}: {e}")
                 parsed_osint_result = osint_parser.parse(result)
