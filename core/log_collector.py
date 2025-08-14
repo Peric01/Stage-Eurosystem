@@ -100,7 +100,7 @@ class LogCollector:
                         self.logger.error(f"Errore con servizio {name}: {e}")
                 parsed_osint_result = osint_parser.parse(result)
                 if parsed_osint_result:
-                    parsed.update(parsed_osint_result)
+                     self.publisher.publish(parsed_osint_result)
                 if parsed:
                     self.publisher.publish(parsed)
                     self.logger.info(f"Published event: {parsed.get('event', 'unknown')}")
